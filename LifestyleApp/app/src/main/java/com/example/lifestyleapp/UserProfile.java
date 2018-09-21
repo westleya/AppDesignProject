@@ -39,7 +39,7 @@ public class UserProfile {
     public void setWeight(int weight) { Weight = weight; }
 
     // Activity level isn't as simple as the other setters.
-    // Since it's categories are descriptive and not numerical
+    // Since its categories are descriptive and not numerical
     // it can't be directly set from the user's input.
     public void setActivityLevel(String activityLevel) {
         if(activityLevel == "Sedentary") {
