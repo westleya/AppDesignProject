@@ -1,4 +1,4 @@
 package com.example.lifestyleapp;
 
-public class DetailFragment {
+public class EditProfileFragment {
 }
