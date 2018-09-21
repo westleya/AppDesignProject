@@ -6,5 +6,5 @@ import android.view.View;
 public class GetWeather extends Fragment {
 
 
-    
+
 }
