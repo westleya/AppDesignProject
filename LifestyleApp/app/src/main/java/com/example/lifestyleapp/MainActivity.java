@@ -2,7 +2,6 @@ package com.example.lifestyleapp;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -21,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         // check to see if it's a tablet or not
 
@@ -80,4 +80,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    // Create an action bar
 }
