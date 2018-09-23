@@ -2,6 +2,7 @@ package com.example.lifestyleapp;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -21,7 +22,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         // check to see if it's a tablet or not
 
         // check if there's a saved file or not. If not, bring up the edit_profile page.
@@ -30,8 +30,11 @@ public class MainActivity extends AppCompatActivity {
         if(file.exists()) {
             // Load the user profile from the file and then bring up the menu
         }
-        else {
-            // Bring up the edit profile page
+        else {  // Bring up the edit profile page
+            EditProfileFragment editProfileFragment = new EditProfileFragment();
+            FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+            ftrans.replace(R.id.fl_frag_masterlist_container_phone, editProfileFragment, "Edit_Profile_Fragment");
+            ftrans.commit();
         }
 
     }

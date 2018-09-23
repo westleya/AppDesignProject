@@ -138,17 +138,18 @@
         <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:id="@+id/rg_sex">
             <RadioButton android:id="@+id/radio_male"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Male"
-                android:onClick="onRadioButtonClicked"/>
+                />
             <RadioButton android:id="@+id/radio_female"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Female"
-                android:onClick="onRadioButtonClicked"/>
+                />
         </RadioGroup>
     </LinearLayout>
     <LinearLayout
