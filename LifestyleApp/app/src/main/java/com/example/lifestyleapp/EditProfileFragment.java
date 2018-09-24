@@ -178,7 +178,6 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         countryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         m_spCountry.setAdapter(countryAdapter);
         m_spCountry.setSelection(227); // Sets United States as default country
-
     }
 
     /**

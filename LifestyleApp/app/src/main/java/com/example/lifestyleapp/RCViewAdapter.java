@@ -12,29 +12,40 @@ import java.util.ArrayList;
 
 public class RCViewAdapter extends RecyclerView.Adapter<RCViewAdapter.ViewHolder>{
 
+    // Member variables
     private Context mContext;
     private DataPasser mDataPasser;
-    private ArrayList<String> menus, menuDescriptions;
+    private ArrayList<String> mMenuItem, mMenuDescriptions;
 
-    public RCViewAdapter(ArrayList<String> menus, ArrayList<String> menuDescriptions) {
-        this.menus = menus;
-        this.menuDescriptions = menuDescriptions;
+    /**
+     * Constructor
+     * @param mMenuTitle - List of menu items
+     * @param menuDescriptions - Description of menu items
+     */
+    public RCViewAdapter(ArrayList<String> mMenuTitle, ArrayList<String> menuDescriptions) {
+        this.mMenuItem = mMenuTitle;
+        this.mMenuDescriptions = menuDescriptions;
     }
+
 
     @NonNull
     @Override
     public RCViewAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         mContext = parent.getContext();
+
+        // Associate the callback with this Fragment
         try{
             mDataPasser = (DataPasser) mContext;
-        }catch(ClassCastException e){
+        }
+        catch(ClassCastException e){
             throw new ClassCastException(mContext.toString()+ " must implement OnDataPass");
         }
 
         LayoutInflater layoutInflater = LayoutInflater.from(mContext);
-        View myView = layoutInflater.inflate(R.layout.menu,parent,false);
+        View myView = layoutInflater.inflate(R.layout.menu, parent,false);
         return new ViewHolder(myView);
     }
+
 
     public class ViewHolder extends RecyclerView.ViewHolder{
         protected View itemLayout;
@@ -47,10 +58,14 @@ public class RCViewAdapter extends RecyclerView.Adapter<RCViewAdapter.ViewHolder
             itemTvDes = (TextView) view.findViewById(R.id.tv_menu_description);
         }
     }
+
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        holder.itemTvMenu.setText(menus.get(position));
-        holder.itemTvDes.setText(menuDescriptions.get(position));
+        holder.itemTvMenu.setText(mMenuItem.get(position));
+
+        // Controls what happens when an item in the list has been clicked
+        holder.itemTvDes.setText(mMenuDescriptions.get(position));
         holder.itemLayout.setOnClickListener(new View.OnClickListener(){
                                                  @Override
                                                  public void onClick(View view) {
@@ -60,11 +75,18 @@ public class RCViewAdapter extends RecyclerView.Adapter<RCViewAdapter.ViewHolder
         );
     }
 
+
+    /**
+     * Gets the number of items in the menu
+     */
     @Override
     public int getItemCount() {
-        return menus.size();
+        return mMenuItem.size();
     }
 
+    /**
+     * Interface for the MainActivity
+     */
     public static interface DataPasser{
         public void passData(int position);
     }

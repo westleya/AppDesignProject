@@ -11,7 +11,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 
-public class MainActivity extends AppCompatActivity implements EditProfileFragment.OnDataPass
+public class MainActivity extends AppCompatActivity implements EditProfileFragment.OnDataPass, RCViewAdapter.DataPasser
 {
 
     private UserProfile mUserProfile;
@@ -36,15 +36,16 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
         File file = new File(getApplicationContext().getFilesDir(), profileName);
         if(file.exists()) {
-            // Load the user profile from the file and then bring up the menu
+            mFragment = new MasterFragment();
         }
         else {  // Bring up the edit profile page
             if(mFragment == null){ // If there's no lifecycle being restored, make new fragment
                 mFragment = new EditProfileFragment();
             }
-            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
-            ftrans.commit();
         }
+
+        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
+        ftrans.commit();
     }
 
     public boolean isTablet() {
@@ -66,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             d_out.writeInt(mUserProfile.getHeight());
             d_out.writeInt(mUserProfile.getWeight());
             d_out.writeBoolean(mUserProfile.getGender());
-            d_out.writeDouble(mUserProfile.getGoal());
+            d_out.writeDouble(mUserProfile.getPoundsPerWeek());
             d_out.writeDouble(mUserProfile.getActivityLevel());
             d_out.flush();
             d_out.close();
@@ -128,6 +129,43 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         // Save user's credentials to file
         saveProfileToFile();
         saveImageToFile();
+    }
+
+    /**
+     * Handles the incoming position from the Recycler View Adapter
+     *
+     * @param position
+     */
+    @Override
+    public void passData(int position) {
+
+        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+        Bundle detailBundle = new Bundle();
+
+        // FIGURE OUT POSITION OF CLICK (WHICH MENU ITEM WAS SELECTED)
+        if(position == 0){ // GOALS
+            mFragment = new GoalsFragment();
+            detailBundle.putString("GOAL", "No current Goal");
+            detailBundle.putInt("CURRENT_WEIGHT", 10);
+            detailBundle.putInt("TARGET_WEIGHT", 10);
+            detailBundle.putInt("BMI", 10);
+            detailBundle.putInt("TARGET_CALORIES", 100);
+
+            mFragment.setArguments(detailBundle);
+            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals Fragment");
+        }
+        else if(position == 1){ // WEATHER
+            mFragment = new WeatherFragment();
+            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
+        }
+        else{ // HIKING
+            // WES, HOW DO I DO THIS?
+            //findHikes(this, mUserProfile);
+        }
+
+        // Create and inflate the
+        ftrans.commit();
+
     }
 
     // Create an action bar

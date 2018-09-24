@@ -60,7 +60,7 @@ public class FitnessUtils {
         // intake can be calculated up or down. (goal will be 0
         // if the user hopes to maintain their current fitness level.)
         double expectedIntake = calculateBMR(profile) +
-                ( (profile.getGoal() * caloriesPerlb) / daysPerWeek );
+                ( (profile.getPoundsPerWeek() * caloriesPerlb) / daysPerWeek );
 
         // This sanitizes the calculation to round to the nearest 5
         return (int) (expectedIntake - (expectedIntake % 5));

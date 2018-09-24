@@ -22,15 +22,15 @@ public class MasterFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View fragmentView = inflater.inflate(R.layout.master, container, false);
+        View fragmentView = inflater.inflate(R.layout.fragment_master, container, false);
 
-        //Get the recycler view
+        // Get the recycler view
         mRecyclerView = (RecyclerView) fragmentView.findViewById(R.id.rv_Master);
 
-        //Tell Android that we know the size of the recyclerview doesn't change
+        // Tell Android that we know the size of the RecyclerView doesn't change
         mRecyclerView.setHasFixedSize(true);
 
-        //Set the layout manager
+        // Set the layout manager
         layoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(layoutManager);
 
