@@ -15,6 +15,19 @@ public class UserProfile {
     private double Goal; // In lbs per week
     private double ActivityLevel; // Sedentary (1.53), Moderate (1.76), Active (2.25)
 
+    // Constructor
+    public UserProfile(String name, int age, int weight, int height, boolean sex, String country,
+                       String city, Bitmap profilePic){
+        Name = name;
+        Age = age;
+        City = city;
+        Country = country;
+        Height = height;
+        Weight = weight;
+        Gender = sex;
+        ProfilePicture = profilePic;
+    }
+
     // Getters
     public Bitmap getProfilePicture() { return ProfilePicture; }
     public double getActivityLevel() { return ActivityLevel; }

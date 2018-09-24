@@ -1,7 +1,12 @@
 package com.example.lifestyleapp;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,21 +15,23 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import static android.widget.AdapterView.*;
-
 
 /**
  * create an instance of this fragment.
@@ -35,6 +42,9 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     private static final int FEMALE = 0;
     private static final int MALE = 1;
 
+    // Define a request code for the camera
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+
     // View objects
     private EditText m_etName;
     private Spinner m_spAge ;
@@ -43,9 +53,11 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     private Spinner m_spHeight;
     private Spinner m_spWeight;
     private RadioGroup m_sexRadioButtons;
-    private RadioButton m_Male;
-    private RadioButton m_Female;
+    private RadioButton m_rbMale;
+    private RadioButton m_rbFemale;
     private Button mSubmitButton;
+    private Button mGetPictureButton;
+    private ImageView m_ivProfilePic;
 
     // Profile data
     private String mName;
@@ -54,8 +66,11 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     private String mCity;
     private int mHeight; // In inches
     private int mWeight; // In pounds
-    private boolean mSex; // 0 = female, 1 = male
-    private Bitmap mPicture;
+    private int mSex; // 0 = female, 1 = male, 2 = none selected
+    private Bitmap mProfilePic;
+
+    // Callback for getting data to Activity
+    private OnDataPass mDataPasser;
 
     /**
      * Required empty constructor
@@ -79,9 +94,11 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_edit_profile, container, false);
 
-        // Set up the button and register it for clicks
-        mSubmitButton = (Button) view.findViewById(R.id.button_profile_edit_submit);
+        // Set up the buttons and register them for clicks
+        mSubmitButton = view.findViewById(R.id.button_profile_edit_submit);
+        mGetPictureButton = view.findViewById(R.id.button_get_profile_pic);
         mSubmitButton.setOnClickListener(this);
+        mGetPictureButton.setOnClickListener(this);
 
         // Assign all Views as members for easy access within class
         m_etName = view.findViewById(R.id.et_name);
@@ -92,17 +109,31 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         m_spHeight = view.findViewById(R.id.spinner_height);
         m_spWeight = view.findViewById(R.id.spinner_weight);
         m_sexRadioButtons = view.findViewById(R.id.rg_sex);
-        m_Male = view.findViewById(R.id.radio_male);
-        m_Female = view.findViewById(R.id.radio_female);
+        m_rbMale = view.findViewById(R.id.radio_male);
+        m_rbFemale = view.findViewById(R.id.radio_female);
+        m_ivProfilePic = view.findViewById(R.id.iv_profile_pic_profile_edit);
+
         // Sets the ID's of the radio buttons so that later it can be determined which was clicked.
-        m_Male.setId(MALE);
-        m_Female.setId(FEMALE);
+        m_rbMale.setId(MALE);
+        m_rbFemale.setId(FEMALE);
 
         // FILL THE SPINNERS WITH DATA
         setSpinners();
 
         return view;
     }
+
+
+    /**
+     * Handles when the camera intent returns a profile picture to this fragment.
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data){
+        Bundle extras = data.getExtras();
+        mProfilePic = (Bitmap) extras.get("data");
+        m_ivProfilePic.setImageBitmap(mProfilePic);
+    }
+
 
     /**
      * Helper method that sets all of the data into the following Spinners:
@@ -154,32 +185,76 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
      * When a user clicks on the submit button, all of the following data is collected and stored
      * in the member variables: Name, Age, Weight, Height, Country, City, Sex.
      *
-     * @param view - View
+     * When the user clicks the profile picture button, switches to the whatever Android OS has
+     * determined should be used with a camera to get a picture. Then stores the picture as
+     * the user's profile picture.
      */
     @Override
     public void onClick(View view) {
-        // GET NAME, AGE, WEIGHT, & LOCAION DATA
-        mName = m_etName.getText().toString();
-        mAge = Integer.parseInt(m_spAge.getSelectedItem().toString());
-        mWeight = Integer.parseInt((m_spWeight.getSelectedItem().toString()));
-        mCountry = m_spCountry.getSelectedItem().toString();
-        mCity = m_spCity.getSelectedItem().toString();
 
-        // GET HEIGHT DATA
-        String heightAsString = m_spHeight.getSelectedItem().toString();
-        // Replace all non number characters with a space
-        heightAsString = heightAsString.replaceAll("[^-?0-9]+", " ");
-        // Split all numbers into their own string
-        String[] splitHeight = heightAsString.split(" ");
-        mHeight = Integer.parseInt(splitHeight[0].trim()) * 12; // feet*inches
-        if(splitHeight.length > 1){
-            mHeight += Integer.parseInt(splitHeight[1].trim()); // Add extra inches
-        }
+        // Handle both the Image and submit buttons
+        switch(view.getId()){
 
-        // GET SEX DATA
-        // Get the ID of the user-selected button (Female = 0, Male = 1)
-        int sexAsInteger = m_sexRadioButtons.getCheckedRadioButtonId();
-        mSex =  (sexAsInteger == 1) ? true : false;
+            // Handle the submit button
+            case R.id.button_profile_edit_submit:{
+                // GET NAME
+                mName = m_etName.getText().toString();
+                if(mName.equals("")){
+                    Toast.makeText(this.getContext(), "Please enter a name.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Spinners come with a default value, so can't check for user input errors
+                mAge = Integer.parseInt(m_spAge.getSelectedItem().toString());
+                mWeight = Integer.parseInt((m_spWeight.getSelectedItem().toString()));
+                mCountry = m_spCountry.getSelectedItem().toString();
+                mCity = m_spCity.getSelectedItem().toString();
+
+                // GET HEIGHT DATA
+                String heightAsString = m_spHeight.getSelectedItem().toString();
+                // Replace all non number characters with a space
+                heightAsString = heightAsString.replaceAll("[^-?0-9]+", " ");
+                // Split all numbers into their own string
+                String[] splitHeight = heightAsString.split(" ");
+                mHeight = Integer.parseInt(splitHeight[0].trim()) * 12; // feet*inches
+                if(splitHeight.length > 1){
+                    mHeight += Integer.parseInt(splitHeight[1].trim()); // Add extra inches
+                }
+
+                // GET SEX DATA
+                // If neither is checked, no assignment made
+                boolean sexBoolean;
+                if(!m_rbFemale.isChecked() && !m_rbMale.isChecked()){
+                    Toast.makeText(this.getContext(), "Please enter your sex.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                else{
+                    int sexAsInteger = m_sexRadioButtons.getCheckedRadioButtonId();
+                    sexBoolean =  (sexAsInteger == 1) ? true : false;
+                }
+
+                // Make sure the user has a profile picture
+                if(mProfilePic == null){
+                    Toast.makeText(this.getContext(), "Please create a profile picture.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // IF WE MADE IT HERE, WE HAVE ALL THE DATA TO SEND TO THE MAIN ACTIVITY
+                // TO CREATE A PROFILE FOR THE CURRENT USER VIA THE CALLBACK
+                mDataPasser.passData(mName, mAge, mWeight, mHeight, sexBoolean, mCountry, mCity, mProfilePic);
+
+            } // End submit button case
+            break;
+
+            // Handle the profile picture button
+            case R.id.button_get_profile_pic:{
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+                if (cameraIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                    startActivityForResult(cameraIntent, REQUEST_IMAGE_CAPTURE);
+                }
+            } // End profile picture button case
+        } // End switch statement
     }
 
     /**
@@ -223,12 +298,120 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         } catch (JSONException e) { // JSON stuff failed
             e.printStackTrace();
         }
-
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
         return;
+    }
+
+
+    /**
+     * Callback interface for sending data to the Activity
+     */
+    public interface OnDataPass{
+        void passData(String name, int age, int weight, int height, boolean sex, String country,
+                             String city, Bitmap profilePic);
+    }
+
+    //Associate the callback with this Fragment
+
+    /**
+     * Helps with the callback for data passing to the main activity
+     */
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try{
+            mDataPasser = (OnDataPass) context;
+        }
+        catch(ClassCastException e){
+            throw new ClassCastException(context.toString() + " must implement OnDataPass");
+        }
+    }
+
+
+    /**
+     * Handles lifecycle awareness when the user moves away from this fragment.
+     */
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        // Get all string and int values associated with this fragment
+        String name = m_etName.getText().toString();
+        int height = m_spHeight.getSelectedItemPosition();
+        int country = m_spCountry.getSelectedItemPosition();
+        int city = m_spCity.getSelectedItemPosition();
+        int age = m_spAge.getSelectedItemPosition();
+        int weight = m_spWeight.getSelectedItemPosition();
+        int sex;  // 0 = female, 1 = male, 2 = none selected
+        if(m_rbFemale.isChecked()){
+            sex = 0;
+        }
+        else if (m_rbMale.isChecked()){
+            sex = 1;
+        }
+        else{
+            sex = 2;
+        }
+
+        // Store all string and int values
+        outState.putString("NAME", name);
+        outState.putInt("HEIGHT", height);
+        outState.putInt("COUNTRY", country);
+        outState.putInt("CITY", city);
+        outState.putInt("AGE", age);
+        outState.putInt("WEIGHT", weight);
+        outState.putInt("SEX", sex);
+
+        // Store image if there is one
+        if(mProfilePic != null){
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            mProfilePic.compress(Bitmap.CompressFormat.PNG, 100, os);
+            byte[] bArray = os.toByteArray();
+            outState.putByteArray("PROFILE_PIC", bArray);
+        }
+
+        //Save the view hierarchy
+        super.onSaveInstanceState(outState);
+    }
+
+
+    /**
+     * Handles lifecycle awareness when the user returns to this fragment.
+     */
+    @Override
+    public void onViewStateRestored (Bundle savedInstanceState){
+
+        if(savedInstanceState != null){
+            // Restore simple saved data
+            m_etName.setText(savedInstanceState.getString("NAME"));
+            m_spAge.setSelection(savedInstanceState.getInt("AGE"));
+            m_spCountry.setSelection(savedInstanceState.getInt("COUNTRY"));
+            m_spCity.setSelection(savedInstanceState.getInt("CITY"));
+            m_spHeight.setSelection(savedInstanceState.getInt("HEIGHT"));
+            m_spWeight.setSelection((savedInstanceState.getInt("WEIGHT")));
+
+            // Restore user's sex, 0 = female, 1 = male, 2 = none selected
+            int sexValue = savedInstanceState.getInt("SEX");
+            if(sexValue == 0){
+                m_rbFemale.setChecked(true);
+                m_rbMale.setChecked(false);
+            }
+            else if(sexValue == 1){
+                m_rbMale.setChecked(true);
+                m_rbFemale.setChecked(true);
+            }
+
+            // Restore image if there was one
+            byte[] imageArray = savedInstanceState.getByteArray("PROFILE_PIC");
+            if(imageArray != null){
+                mProfilePic = BitmapFactory.decodeByteArray(imageArray, 0, imageArray .length);
+                m_ivProfilePic.setImageBitmap(mProfilePic);
+            }
+        }
+
+        super.onViewStateRestored(savedInstanceState);
     }
 
 }

@@ -162,10 +162,13 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/ll_sex"
             android:text="Take a photo"
-            android:layout_marginRight="8dp"/>
+            android:layout_marginRight="8dp"
+            android:id="@+id/button_get_profile_pic"/>
         <ImageView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:id="@+id/iv_profile_pic_profile_edit"
+            />
     </LinearLayout>
     <Button
         android:layout_width="wrap_content"
