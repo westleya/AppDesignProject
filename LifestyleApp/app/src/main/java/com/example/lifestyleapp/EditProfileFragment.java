@@ -52,6 +52,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     private Spinner m_spCity;
     private Spinner m_spHeight;
     private Spinner m_spWeight;
+    private Spinner m_spActivityLevel;
     private RadioGroup m_sexRadioButtons;
     private RadioButton m_rbMale;
     private RadioButton m_rbFemale;
@@ -64,6 +65,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     private int mAge;
     private String mCountry;
     private String mCity;
+    private String mActivityLevel;
     private int mHeight; // In inches
     private int mWeight; // In pounds
     private int mSex; // 0 = female, 1 = male, 2 = none selected
@@ -112,6 +114,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         m_rbMale = view.findViewById(R.id.radio_male);
         m_rbFemale = view.findViewById(R.id.radio_female);
         m_ivProfilePic = view.findViewById(R.id.iv_profile_pic_profile_edit);
+        m_spActivityLevel = view.findViewById(R.id.spinner_activityLevel);
 
         // Sets the ID's of the radio buttons so that later it can be determined which was clicked.
         m_rbMale.setId(MALE);
@@ -163,6 +166,16 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         heightAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         m_spHeight.setAdapter(heightAdapter);
 
+        // Set Activity spinner
+        ArrayList<String> activityLevels = new ArrayList<>();
+        activityLevels.add("Sedentary");
+        activityLevels.add("Moderate");
+        activityLevels.add("Active");
+        ArrayAdapter<String> activityAdapter = new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_spinner_item, activityLevels);
+        heightAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        m_spActivityLevel.setAdapter(activityAdapter);
+
+
         // Set Weight spinner (
         ArrayList<Integer> weightValues = new ArrayList<>();
         for(int i = 50; i < 400; i++){ // account for feet
@@ -208,6 +221,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
                 mWeight = Integer.parseInt((m_spWeight.getSelectedItem().toString()));
                 mCountry = m_spCountry.getSelectedItem().toString();
                 mCity = m_spCity.getSelectedItem().toString();
+                mActivityLevel = m_spActivityLevel.getSelectedItem().toString();
 
                 // GET HEIGHT DATA
                 String heightAsString = m_spHeight.getSelectedItem().toString();
@@ -240,7 +254,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
 
                 // IF WE MADE IT HERE, WE HAVE ALL THE DATA TO SEND TO THE MAIN ACTIVITY
                 // TO CREATE A PROFILE FOR THE CURRENT USER VIA THE CALLBACK
-                mDataPasser.passData(mName, mAge, mWeight, mHeight, sexBoolean, mCountry, mCity, mProfilePic);
+                mDataPasser.passData(mName, mAge, mWeight, mHeight, mActivityLevel, sexBoolean, mCountry, mCity, mProfilePic);
 
             } // End submit button case
             break;
@@ -309,7 +323,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
      * Callback interface for sending data to the Activity
      */
     public interface OnDataPass{
-        void passData(String name, int age, int weight, int height, boolean sex, String country,
+        void passData(String name, int age, int weight, int height, String activityLevel, boolean sex, String country,
                              String city, Bitmap profilePic);
     }
 
@@ -343,6 +357,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         int city = m_spCity.getSelectedItemPosition();
         int age = m_spAge.getSelectedItemPosition();
         int weight = m_spWeight.getSelectedItemPosition();
+        int activityLevel = m_spActivityLevel.getSelectedItemPosition();
         int sex;  // 0 = female, 1 = male, 2 = none selected
         if(m_rbFemale.isChecked()){
             sex = 0;
@@ -362,6 +377,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         outState.putInt("AGE", age);
         outState.putInt("WEIGHT", weight);
         outState.putInt("SEX", sex);
+        outState.putInt("ACTIVITY", activityLevel);
 
         // Store image if there is one
         if(mProfilePic != null){
@@ -389,7 +405,8 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
             m_spCountry.setSelection(savedInstanceState.getInt("COUNTRY"));
             m_spCity.setSelection(savedInstanceState.getInt("CITY"));
             m_spHeight.setSelection(savedInstanceState.getInt("HEIGHT"));
-            m_spWeight.setSelection((savedInstanceState.getInt("WEIGHT")));
+            m_spWeight.setSelection(savedInstanceState.getInt("WEIGHT"));
+            m_spActivityLevel.setSelection(savedInstanceState.getInt("ACTIVITY"));
 
             // Restore user's sex, 0 = female, 1 = male, 2 = none selected
             int sexValue = savedInstanceState.getInt("SEX");

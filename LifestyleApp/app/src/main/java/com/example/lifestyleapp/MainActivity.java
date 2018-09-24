@@ -120,11 +120,11 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
      * @param profilePic - profile picture for user
      */
     @Override
-    public void passData(String name, int age, int weight, int height, boolean sex, String country,
+    public void passData(String name, int age, int weight, int height, String activityLevel, boolean sex, String country,
                          String city, Bitmap profilePic) {
 
         // Create the UserProfile
-        UserProfile mUserProfile = new UserProfile(name, age, weight, height, sex, country, city, profilePic);
+        UserProfile mUserProfile = new UserProfile(name, age, weight, height, activityLevel, sex, country, city, profilePic);
 
         // Save user's credentials to file
         saveProfileToFile();
