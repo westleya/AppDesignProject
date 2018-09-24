@@ -18,6 +18,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class EditGoalsFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
     private Spinner mSpGoals;
@@ -53,6 +57,31 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
                     Toast.makeText(this.getContext(), "Please select correct date.", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                String targetStr = day + "/" + month + "/" + year;
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                try {
+                    Date targetDate = sdf.parse(targetStr);
+                    Date c = Calendar.getInstance().getTime();
+                    sdf.format(c);
+                    long diff = targetDate.getTime() - c.getTime();
+                    int currentCal = getArguments().getInt("CAL");
+                    int currentWeight = getArguments().getInt("WEIGHT");
+                    if (Math.abs((double) (currentWeight - weight) / diff * 7) > 2) {
+                        Toast.makeText(this.getContext(), "Warning, you are planning to lose / gain more than 2 lbs per week, please select a different target", Toast.LENGTH_SHORT).show();
+                    }
+                    if (currentWeight > weight) {
+                        double cal = currentCal - ((double) (currentWeight - weight) * 3500) / diff;
+                        if (getArguments().getBoolean("MALE") && cal < 1200) {
+                            Toast.makeText(this.getContext(), "Warning, your plan will result in unsafe low calorie intake, please select a different target", Toast.LENGTH_SHORT).show();
+                        }
+                        if (!getArguments().getBoolean("MALE") && cal < 1000) {
+                            Toast.makeText(this.getContext(), "Warning, your plan will result in unsafe low calorie intake, please select a different target", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
                 mDataPasser.passData(goal, activity, weight, year, month, day);
             }
         }
@@ -89,7 +118,7 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
         goalsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpGoals.setAdapter(goalsAdapter);
 
-        String[] activity = new String[] {"Active", "Sedentary"};
+        String[] activity = new String[] {"Active", "Sedentary", "Moderate"};
         ArrayAdapter<String> activityAdapter = new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_spinner_item, activity);
         activityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpActivity.setAdapter(activityAdapter);
