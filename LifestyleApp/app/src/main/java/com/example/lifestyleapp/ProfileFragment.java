@@ -18,7 +18,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //Inflate the detail view
-        View view = inflater.inflate(R.layout.view_weather, container, false);
+        View view = inflater.inflate(R.layout.view_profile, container, false);
 
         //Get the text view
         mTvName = (TextView) view.findViewById(R.id.tv_name);
