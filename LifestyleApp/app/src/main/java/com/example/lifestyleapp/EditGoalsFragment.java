@@ -1,8 +1,6 @@
 package com.example.lifestyleapp;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,18 +12,16 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 public class EditGoalsFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
-    private Spinner mSpGoals;
-    private Spinner mSpActivity;
+//    private Spinner mSpGoals;
+//    private Spinner mSpActivity;
     private Spinner mSpTargetWeight;
     private Spinner mSpTargetYear;
     private Spinner mSpTargetMonth;
@@ -36,13 +32,13 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.button_calculate:{
-                if (!mSpGoals.isSelected() || !mSpActivity.isSelected() || !mSpTargetWeight.isSelected() ||
+                if (!mSpTargetWeight.isSelected() ||
                         !mSpTargetYear.isSelected() || !mSpTargetMonth.isSelected() || !mTargetDay.isSelected()) {
                     Toast.makeText(this.getContext(), "Please select all items.", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                String goal = mSpGoals.getSelectedItem().toString();
-                String activity = mSpActivity.getSelectedItem().toString();
+//                String goal = mSpGoals.getSelectedItem().toString();
+//                String activity = mSpActivity.getSelectedItem().toString();
                 int weight = Integer.parseInt(mSpTargetWeight.getSelectedItem().toString());
                 int year = Integer.parseInt(mSpTargetYear.getSelectedItem().toString());
                 int month = Integer.parseInt(mSpTargetMonth.getSelectedItem().toString());
@@ -82,7 +78,7 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
                     e.printStackTrace();
                 }
 
-                mDataPasser.passData(goal, activity, weight, year, month, day);
+                mDataPasser.passData(weight, year, month, day);
             }
         }
     }
@@ -104,8 +100,8 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
         View view = inflater.inflate(R.layout.edit_goals, container, false);
 
         //Get the text view
-        mSpGoals = view.findViewById(R.id.spinner_goals);
-        mSpActivity = view.findViewById(R.id.spinner_activityLevel);
+//        mSpGoals = view.findViewById(R.id.spinner_goals);
+//        mSpActivity = view.findViewById(R.id.spinner_activityLevel);
         mSpTargetWeight =  view.findViewById(R.id.spinner_targetWeight);
         mSpTargetYear =  view.findViewById(R.id.spinner_targetYear);
         mSpTargetMonth =  view.findViewById(R.id.spinner_targetMonth);
@@ -113,15 +109,15 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
         mButtonCalculate = view.findViewById(R.id.button_calculate);
         mButtonCalculate.setOnClickListener(this);
 
-        String[] goals = new String[] {"Gaining weight", "Losing weight"};
-        ArrayAdapter<String> goalsAdapter = new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_spinner_item, goals);
-        goalsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpGoals.setAdapter(goalsAdapter);
+//        String[] goals = new String[] {"Gaining weight", "Losing weight"};
+//        ArrayAdapter<String> goalsAdapter = new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_spinner_item, goals);
+//        goalsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        mSpGoals.setAdapter(goalsAdapter);
 
-        String[] activity = new String[] {"Active", "Sedentary", "Moderate"};
-        ArrayAdapter<String> activityAdapter = new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_spinner_item, activity);
-        activityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpActivity.setAdapter(activityAdapter);
+//        String[] activity = new String[] {"Active", "Sedentary", "Moderate"};
+//        ArrayAdapter<String> activityAdapter = new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_spinner_item, activity);
+//        activityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        mSpActivity.setAdapter(activityAdapter);
 
         String[] weight = new String[351];
         for (int i = 0; i < 351; ++i) {
@@ -165,13 +161,12 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
     }
 
     public interface OnDataPass{
-        void passData(String goal, String activity, int weight, int year, int month, int day);
+        void passData(int weight, int year, int month, int day);
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
         try{
             mDataPasser = (EditGoalsFragment.OnDataPass) context;
         }
@@ -183,16 +178,16 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
     @Override
     public void onSaveInstanceState(Bundle outState){
         // Get all string and int values associated with this fragment
-        String goal = mSpGoals.getSelectedItem().toString();
-        String activity = mSpActivity.getSelectedItem().toString();
+//        String goal = mSpGoals.getSelectedItem().toString();
+//        String activity = mSpActivity.getSelectedItem().toString();
         int weight = Integer.parseInt(mSpTargetWeight.getSelectedItem().toString());
         int year = Integer.parseInt(mSpTargetYear.getSelectedItem().toString());
         int month = Integer.parseInt(mSpTargetMonth.getSelectedItem().toString());
         int day = Integer.parseInt(mTargetDay.getSelectedItem().toString());
 
         // Store all string and int values
-        outState.putString("GOAL", goal);
-        outState.putString("ACTIVITY", activity);
+//        outState.putString("GOAL", goal);
+//        outState.putString("ACTIVITY", activity);
         outState.putInt("WEIGHT", weight);
         outState.putInt("YEAR", year);
         outState.putInt("MONTH", month);
@@ -207,8 +202,8 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
 
         if(savedInstanceState != null){
             // Restore simple saved data
-            mSpGoals.setSelection(savedInstanceState.getInt("GOAL"));
-            mSpActivity.setSelection(savedInstanceState.getInt("ACTIVITY"));
+//            mSpGoals.setSelection(savedInstanceState.getInt("GOAL"));
+//            mSpActivity.setSelection(savedInstanceState.getInt("ACTIVITY"));
             mSpTargetWeight.setSelection(savedInstanceState.getInt("WEIGHT"));
             mSpTargetYear.setSelection(savedInstanceState.getInt("YEAR"));
             mSpTargetMonth.setSelection((savedInstanceState.getInt("MONTH")));
