@@ -19,7 +19,7 @@ public class GoalsFragment extends Fragment{
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //Inflate the detail view
-        View view = inflater.inflate(R.layout.view_weather, container, false);
+        View view = inflater.inflate(R.layout.view_goals, container, false);
 
         //Get the text view
         mTvGoals = (TextView) view.findViewById(R.id.tv_goal);
