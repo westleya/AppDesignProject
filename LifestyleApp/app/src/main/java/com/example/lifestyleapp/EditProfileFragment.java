@@ -324,7 +324,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
      */
     public interface OnDataPass{
         void passData(String name, int age, int weight, int height, String activityLevel, boolean sex, String country,
-                             String city, Bitmap profilePic);
+                             String city, Bitmap picture);
     }
 
     //Associate the callback with this Fragment

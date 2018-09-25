@@ -9,7 +9,6 @@ public class GetWeather {
         WeatherData weatherData = new WeatherData();
 
 
-
         return weatherData;
     }
 
