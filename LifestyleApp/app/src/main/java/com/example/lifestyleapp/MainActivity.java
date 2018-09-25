@@ -11,14 +11,21 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
+
+import org.json.JSONException;
 
 import java.io.DataInput;
 import java.io.DataInputStream;
@@ -30,9 +37,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements EditProfileFragment.OnDataPass, RCViewAdapter.DataPasser
-{
+, LoaderManager.LoaderCallbacks<String> {
 
     private UserProfile mUserProfile;
     private String fileName = "user_profile.txt";
@@ -44,11 +52,17 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     private double longitude;
     private double latitude;
     private String mSearchFor = "hikes";
+    public static final String URL_STRING = "query";
+    WeatherData mWeatherData;
+
+    //Uniquely identify loader
+    private static final int SEARCH_LOADER = 11;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getSupportLoaderManager().initLoader(SEARCH_LOADER, null, this);
 
         // Find the toolbar view inside of the activity_layout
         mToolBar = findViewById(R.id.toolbar);
@@ -78,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         }
 
         ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
-        ftrans.addToBackStack("back");
         ftrans.commit();
     }
 
@@ -211,20 +224,31 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             detailBundle.putInt("TARGET_CALORIES", 100);
 
             mFragment.setArguments(detailBundle);
+            ftrans.addToBackStack("back");
             ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals Fragment");
+            
+            // Create and inflate the fragment
+            ftrans.commit();
         }
         else if(position == 1){ // WEATHER
             mFragment = new WeatherFragment();
-            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
+
+            // Sanitize the location for querying the openWeather API
+            String location = mUserProfile.getCity().replace(' ', '&');
+            location += "&" + mUserProfile.getCountry().replace(' ', '&');
+
+            // Get the weather data
+            getWeather(location);
+
         }
         else{ // HIKING
             FindHikes();
         }
 
-        // Create and inflate the fragment
-        ftrans.commit();
-
     }
+
+
+////////FIND LOCAL HIKES////////
 
     // Use GPS to get the nearest hikes if possible.
     // If not possible, use the city and country provided.
@@ -286,6 +310,112 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
 
 
     };
+
+////////GET WEATHER DATA/////////////
+
+
+    private void getWeather(String location) {
+
+        Bundle searchQueryBundle = new Bundle();
+        searchQueryBundle.putString(URL_STRING, location);
+        LoaderManager loaderManager = getSupportLoaderManager();
+        Loader<String> searchLoader = loaderManager.getLoader(SEARCH_LOADER);
+
+        if(searchLoader == null) {
+            loaderManager.initLoader(SEARCH_LOADER, searchQueryBundle,this);
+        }
+        else {
+            loaderManager.restartLoader(SEARCH_LOADER, searchQueryBundle,this);
+        }
+    }
+
+    @NonNull
+    @Override
+    public Loader<String> onCreateLoader(int i, @Nullable final Bundle bundle) {
+        return new AsyncTaskLoader<String>(this) {
+            private String mLoaderData;
+
+            @Override
+            protected void onStartLoading() {
+                if(bundle == null) {
+                    return;
+                }
+                if(mLoaderData != null) {
+                    //Cache data for onPause instead of loading all over again
+                    //Other config changes are handled automatically
+                    deliverResult(mLoaderData);
+                }
+                else {
+                    forceLoad();
+                }
+            }
+
+            @Nullable
+            @Override
+            public String loadInBackground() {
+                String location = bundle.getString(URL_STRING);
+                URL weatherDataURL = WeatherUtils.buildURLFromLocation(location);
+                String jsonWeatherData = null;
+                try {
+                    jsonWeatherData = WeatherUtils.getDataFromURL(weatherDataURL);
+                    return jsonWeatherData;
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            @Override
+            public void deliverResult(@Nullable String data) {
+                mLoaderData = data;
+                super.deliverResult(data);
+            }
+        };
+
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<String> loader, String jsonWeatherData) {
+        if(jsonWeatherData != null) {
+            try {
+                mWeatherData = WeatherUtils.CreateWeatherData(jsonWeatherData);
+            }
+            catch (JSONException e) {
+                e.printStackTrace();
+            }
+            if(mWeatherData != null) {
+                FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+                Bundle detailBundle = new Bundle();
+
+                // Sanitize the location for querying the openWeather API
+                String location = mUserProfile.getCity().replace(' ', '&');
+                location += "&" + mUserProfile.getCountry().replace(' ', '&');
+
+                // location, weather, wind, humidity, pressure;
+                // Add the data to the bundle to be sent to the fragment
+                detailBundle.putString("location", location);
+                detailBundle.putString("weather", mWeatherData.getCurrentCondition().getDescription());
+                detailBundle.putString("wind", Double.toString(mWeatherData.getWind().getSpeed()));
+                detailBundle.putString("temperature", Double.toString((9 * ((
+                        mWeatherData.getTemperature().getTemp() - 273) / 5) + 32)));
+                detailBundle.putString("humidity", Double.toString(mWeatherData.getCurrentCondition().getHumidity()));
+                detailBundle.putString("pressure", Double.toString(mWeatherData.getCurrentCondition().getPressure()));
+
+                mFragment.setArguments(detailBundle);
+                ftrans.addToBackStack("back");
+                ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
+                ftrans.commit();
+            }
+
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<String> loader) {
+
+    }
 
     // Create an action bar
 }

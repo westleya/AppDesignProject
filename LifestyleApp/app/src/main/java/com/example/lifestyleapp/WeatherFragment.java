@@ -4,13 +4,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 public class WeatherFragment extends Fragment{
-    private TextView mTvLocation, mTvWeather, mTvWind, mTvHumidity, mTvAir;
+    private TextView mTvLocation, mTvWeather, mTvWind, mTvHumidity, mTvPressure;
 
     public WeatherFragment(){}
 
@@ -25,15 +26,17 @@ public class WeatherFragment extends Fragment{
         mTvWeather = (TextView) view.findViewById(R.id.tv_weather);
         mTvWind = (TextView) view.findViewById(R.id.tv_wind);
         mTvHumidity = (TextView) view.findViewById(R.id.tv_humidity);
-        mTvAir = (TextView) view.findViewById(R.id.tv_air);
+        mTvPressure = (TextView) view.findViewById(R.id.tv_press);
 
         mTvLocation.setText(getArguments().getString("location"));
-        mTvWeather.setText(getArguments().getString("weather"));
-        mTvWind.setText(getArguments().getString("wind"));
-        mTvHumidity.setText(getArguments().getString("humidity"));
-        mTvAir.setText(getArguments().getString("air"));
+        mTvWeather.setText(getArguments().getString("weather") + ", " +
+                getArguments().getString("temperature") + " F");
+        mTvWind.setText(getArguments().getString("wind") + "m/s");
+        mTvHumidity.setText(getArguments().getString("humidity") + "%");
+        mTvPressure.setText(getArguments().getString("pressure") + "hPa");
 
         return view;
     }
+
 
 }

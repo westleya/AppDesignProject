@@ -23,15 +23,11 @@ public class WeatherUtils {
         return weatherData;
     }
 
-    public static URL buildURLFromProfile(UserProfile profile) {
-
-        // Sanitize the location data
-        String country = profile.getCountry().replace(' ', '&');
-        String city = profile.getCity().replace(' ', '&');
+    public static URL buildURLFromLocation(String location) {
 
         URL myURL = null;
         try{
-            myURL = new URL(BASE_URL + city + "," + country + APPIDQUERY + app_id);
+            myURL = new URL(BASE_URL + location + APPIDQUERY + app_id);
         }
         catch (MalformedURLException e) {
             e.printStackTrace();
@@ -57,7 +53,7 @@ public class WeatherUtils {
                 return null;
             }
         }finally {
-
+            urlConnection.disconnect();
         }
     }
 }

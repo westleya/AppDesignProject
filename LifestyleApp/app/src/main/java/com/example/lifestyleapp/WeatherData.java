@@ -1,6 +1,8 @@
 package com.example.lifestyleapp;
 
-public class WeatherData {
+import java.io.Serializable;
+
+public class WeatherData implements Serializable {
     private CurrentCondition mCurrentCondition = new CurrentCondition();
     private Temperature mTemperature = new Temperature();
     private Wind mWind = new Wind();
