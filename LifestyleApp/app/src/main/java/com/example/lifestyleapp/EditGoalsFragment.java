@@ -67,6 +67,7 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
                     }
                     if (currentWeight > weight) {
                         double cal = currentCal - ((double) (currentWeight - weight) * 3500) / diff;
+
                         if (getArguments().getBoolean("MALE") && cal < 1200) {
                             Toast.makeText(this.getContext(), "Warning, your plan will result in unsafe low calorie intake, please select a different target", Toast.LENGTH_SHORT).show();
                         }
