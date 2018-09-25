@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 public class WeatherFragment extends Fragment{
     private TextView mTvLocation, mTvWeather, mTvWind, mTvHumidity, mTvAir;
+    private WeatherData mWeatherData;
 
     public WeatherFragment(){}
 
@@ -35,4 +36,7 @@ public class WeatherFragment extends Fragment{
 
         return view;
     }
+
+
+    p
 }
