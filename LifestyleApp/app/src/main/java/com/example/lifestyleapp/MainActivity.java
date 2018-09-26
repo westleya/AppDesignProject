@@ -34,12 +34,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity implements EditProfileFragment.OnDataPass, RCViewAdapter.DataPasser
-<<<<<<< HEAD
-, LoaderManager.LoaderCallbacks<String>, EditGoalsFragment.OnDataPass {
-=======
-, GoalsFragment.OnDataPass, ProfileFragment.OnDataPass, EditGoalsFragment.OnDataPass {
->>>>>>> 22cb9d67327f414cfa6276824f0ff25aab6707dd
+public class MainActivity extends AppCompatActivity implements EditProfileFragment.OnDataPass,
+        RCViewAdapter.DataPasser, EditGoalsFragment.OnDataPass {
+
 
     private UserProfile mUserProfile;
     private String fileName = "user_profile.txt";
@@ -241,15 +238,8 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             detailBundle.putInt("TARGET_CALORIES", 100);
 
             mFragment.setArguments(detailBundle);
-<<<<<<< HEAD
-            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals Fragment");
 
-            // Create and inflate the fragment
-            ftrans.commit();
-            ftrans.addToBackStack(null);
-=======
             ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals_Fragment");
->>>>>>> 22cb9d67327f414cfa6276824f0ff25aab6707dd
         }
         else if(position == 1){ // WEATHER
             mFragment = new WeatherFragment();
@@ -336,113 +326,6 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
 
     };
 
-<<<<<<< HEAD
-////////GET WEATHER DATA/////////////
-
-
-    private void getWeather(String location) {
-
-        Bundle searchQueryBundle = new Bundle();
-        searchQueryBundle.putString(URL_STRING, location);
-        LoaderManager loaderManager = getSupportLoaderManager();
-        Loader<String> searchLoader = loaderManager.getLoader(SEARCH_LOADER);
-
-        if(searchLoader == null) {
-            loaderManager.initLoader(SEARCH_LOADER, searchQueryBundle,this);
-        }
-        else {
-            loaderManager.restartLoader(SEARCH_LOADER, searchQueryBundle,this);
-        }
-    }
-
-    @NonNull
-    @Override
-    public Loader<String> onCreateLoader(int i, @Nullable final Bundle bundle) {
-        return new AsyncTaskLoader<String>(this) {
-            private String mLoaderData;
-
-            @Override
-            protected void onStartLoading() {
-                if(bundle == null) {
-                    return;
-                }
-                if(mLoaderData != null) {
-                    //Cache data for onPause instead of loading all over again
-                    //Other config changes are handled automatically
-                    deliverResult(mLoaderData);
-                }
-                else {
-                    forceLoad();
-                }
-            }
-
-            @Nullable
-            @Override
-            public String loadInBackground() {
-                String location = bundle.getString(URL_STRING);
-                URL weatherDataURL = WeatherUtils.buildURLFromLocation(location);
-                String jsonWeatherData = null;
-                try {
-                    jsonWeatherData = WeatherUtils.getDataFromURL(weatherDataURL);
-                    return jsonWeatherData;
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-
-            @Override
-            public void deliverResult(@Nullable String data) {
-                mLoaderData = data;
-                super.deliverResult(data);
-            }
-        };
-
-    }
-
-    @Override
-    public void onLoadFinished(@NonNull Loader<String> loader, String jsonWeatherData) {
-        if(jsonWeatherData != null) {
-            try {
-                mWeatherData = WeatherUtils.CreateWeatherData(jsonWeatherData);
-            }
-            catch (JSONException e) {
-                e.printStackTrace();
-            }
-            if(mWeatherData != null) {
-                FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-                Bundle detailBundle = new Bundle();
-
-                // Sanitize the location for querying the openWeather API
-                String location = mUserProfile.getCity().replace(' ', '&');
-                location += "&" + mUserProfile.getCountry().replace(' ', '&');
-
-                // location, weather, wind, humidity, pressure;
-                // Add the data to the bundle to be sent to the fragment
-                detailBundle.putString("location", location);
-                detailBundle.putString("weather", mWeatherData.getCurrentCondition().getDescription());
-                detailBundle.putString("wind", Double.toString(mWeatherData.getWind().getSpeed()));
-                detailBundle.putString("temperature", Double.toString((9 * ((
-                        mWeatherData.getTemperature().getTemp() - 273) / 5) + 32)));
-                detailBundle.putString("humidity", Double.toString(mWeatherData.getCurrentCondition().getHumidity()));
-                detailBundle.putString("pressure", Double.toString(mWeatherData.getCurrentCondition().getPressure()));
-
-                mFragment.setArguments(detailBundle);
-                ftrans.addToBackStack("back");
-                ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
-                ftrans.commit();
-                ftrans.addToBackStack(null);
-            }
-
-        }
-
-    }
-
-    @Override
-    public void onLoaderReset(@NonNull Loader<String> loader) {
-
-    }
 
     /**
      * Handles when the logo/home button is clicked. Returns to the home menu
@@ -502,7 +385,4 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     }
 
 }
-=======
-    // Create an action bar
-}
->>>>>>> 22cb9d67327f414cfa6276824f0ff25aab6707dd
+
