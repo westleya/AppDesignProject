@@ -226,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             mFragment.setArguments(detailBundle);
             ftrans.addToBackStack("back");
             ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals Fragment");
-            
+
             // Create and inflate the fragment
             ftrans.commit();
         }
