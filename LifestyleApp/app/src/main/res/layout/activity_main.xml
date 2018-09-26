@@ -17,7 +17,15 @@
         <android.support.v7.widget.AppCompatImageView
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:src="@drawable/logo_331"/>
+            android:src="@drawable/logo_331"
+            android:id="@+id/iv_toolbar_logo"
+            android:onClick="returnToHome" />
+        <android.support.v7.widget.AppCompatImageView
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/profile_placeholder"
+            android:id="@+id/iv_toolbar_profile_pic"
+            android:onClick="goToUserProfile"/>
     </android.support.v7.widget.Toolbar>
 
     <LinearLayout

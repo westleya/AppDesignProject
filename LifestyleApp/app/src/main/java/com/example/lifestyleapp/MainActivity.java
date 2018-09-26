@@ -22,19 +22,14 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuInflater;
+import android.view.View;
 
 import org.json.JSONException;
 
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URL;
@@ -76,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         }
 
         // check to see if it's a tablet or not
+        // TODO: TABLET STUFF
 
         // check if there's a saved file or not. If not, bring up the edit_profile page.
         // If there is, bring up the fragment_detail page.
@@ -83,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         File file = new File(getApplicationContext().getFilesDir(), fileName);
         if(file.exists()) {
             readProfileFromFile();
+            readPictureFromFile();
             mFragment = new MasterFragment();
         }
         else {  // Bring up the edit profile page
@@ -199,6 +196,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         mFragment = new MasterFragment();
         ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
         ftrans.commit();
+        ftrans.addToBackStack(null);
 
     }
 
@@ -229,6 +227,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             
             // Create and inflate the fragment
             ftrans.commit();
+            ftrans.addToBackStack(null);
         }
         else if(position == 1){ // WEATHER
             mFragment = new WeatherFragment();
@@ -406,6 +405,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
                 ftrans.addToBackStack("back");
                 ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
                 ftrans.commit();
+                ftrans.addToBackStack(null);
             }
 
         }
@@ -415,6 +415,28 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     @Override
     public void onLoaderReset(@NonNull Loader<String> loader) {
 
+    }
+
+    /**
+     * Handles when the logo/home button is clicked. Returns to the home menu
+     */
+    public void returnToHome(View view) {
+        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+        mFragment = new MasterFragment();
+        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
+        ftrans.commit();
+        ftrans.addToBackStack(null);
+    }
+
+    /**
+     * Handles when the user profile icon is clicked. Goes to the user profile screen
+     */
+    public void goToUserProfile(View view) {
+        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+        mFragment = new ProfileFragment();
+        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
+        ftrans.commit();
+        ftrans.addToBackStack(null);
     }
 
     // Create an action bar
