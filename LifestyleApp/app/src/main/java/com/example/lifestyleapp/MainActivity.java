@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
 
 
     @Override
-    public void passData(int weight, int year, int month, int day) {
+    public void passDataEditGoal(int weight, int year, int month, int day) {
         Bundle bundle = new Bundle();
         bundle.putInt("WEIGHT", weight);
         bundle.putInt("YEAR", year);
@@ -209,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
 
         // Now that the profile's been made, the menu fragment needs to be brought up.
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        mFragment = new EditProfileFragment();
+        mFragment = new GoalsFragment();
         mFragment.setArguments(bundle);
         ftrans.addToBackStack("back");
         ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Goal_Fragment");

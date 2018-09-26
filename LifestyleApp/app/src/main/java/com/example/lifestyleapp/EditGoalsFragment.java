@@ -60,8 +60,10 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
                     Date c = Calendar.getInstance().getTime();
                     sdf.format(c);
                     long diff = targetDate.getTime() - c.getTime();
-                    int currentCal = getArguments().getInt("CAL");
-                    int currentWeight = getArguments().getInt("WEIGHT");
+//                    int currentCal = getArguments().getInt("CAL");
+                    int currentCal = 2000;
+//                    int currentWeight = getArguments().getInt("WEIGHT");
+                    int currentWeight = 50;
                     if (Math.abs((double) (currentWeight - weight) / diff * 7) > 2) {
                         Toast.makeText(this.getContext(), "Warning, you are planning to lose / gain more than 2 lbs per week, please select a different target", Toast.LENGTH_SHORT).show();
                     }
@@ -79,7 +81,7 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
                     e.printStackTrace();
                 }
 
-                mDataPasser.passData(weight, year, month, day);
+                mDataPasser.passDataEditGoal(weight, year, month, day);
             }
         }
     }
@@ -163,7 +165,7 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
     }
 
     public interface OnDataPass{
-        void passData(int weight, int year, int month, int day);
+        void passDataEditGoal(int weight, int year, int month, int day);
     }
 
     @Override

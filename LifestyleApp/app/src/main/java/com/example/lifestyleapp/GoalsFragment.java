@@ -33,11 +33,17 @@ public class GoalsFragment extends Fragment {
         mButtonEdit = view.findViewById(R.id.button_editGoal);
 
         // Get the incoming details
-        mTvGoals.setText(getArguments().getString("GOAL"));
-        mTvCurrentWeight.setText(Integer.toString(getArguments().getInt("CURRENT_WIGHT")));
-        mTvTargetWeight.setText(Integer.toString(getArguments().getInt("TARGET_WEIGHT")));
-        mTvCurrentBMI.setText(Integer.toString(getArguments().getInt("BMI")));
-        mTvTargetCalorie.setText(Integer.toString(getArguments().getInt("TARGET_CALORIES")));
+//        mTvGoals.setText(getArguments().getString("GOAL"));
+//        mTvCurrentWeight.setText(Integer.toString(getArguments().getInt("CURRENT_WIGHT")));
+//        mTvTargetWeight.setText(Integer.toString(getArguments().getInt("TARGET_WEIGHT")));
+//        mTvCurrentBMI.setText(Integer.toString(getArguments().getInt("BMI")));
+//        mTvTargetCalorie.setText(Integer.toString(getArguments().getInt("TARGET_CALORIES")));
+
+        mTvGoals.setText("Gaining Weight");
+        mTvCurrentWeight.setText("50");
+        mTvTargetWeight.setText("60");
+        mTvCurrentBMI.setText("15.3");
+        mTvTargetCalorie.setText("2500");
 
         return view;
     }

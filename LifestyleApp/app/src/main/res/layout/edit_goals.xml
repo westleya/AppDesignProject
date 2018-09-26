@@ -39,7 +39,7 @@
             android:id="@+id/spinner_targetYear"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"></Spinner>
+            android:layout_weight="1.5"></Spinner>
         <Spinner
             android:id="@+id/spinner_targetMonth"
             android:layout_width="0dp"
