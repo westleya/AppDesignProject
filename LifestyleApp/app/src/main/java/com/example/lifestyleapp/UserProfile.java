@@ -1,21 +1,25 @@
 package com.example.lifestyleapp;
 
-import android.graphics.Bitmap;
-
 import java.io.Serializable;
 
 public class UserProfile implements Serializable{
 
+    // User Stats Data
     private String Name;
     private int Age;
     private String City;
     private String Country;
     private int Height; // in inches
     private int Weight; // in lbs
-    private int GoalWeight; // in lbs
     private boolean Gender; // M=true, F=false
-    private double poundsPerWeek; // In lbs per week
     private double ActivityLevel; // Sedentary (1.53), Moderate (1.76), Active (2.25)
+
+    // User Goal Related Data
+    private String Goal; // Lose, maintain, or gain weight
+    private int TargetWeight; // in lbs
+    private double poundsPerWeek; // In lbs per week
+
+
     // Constructor
     public UserProfile(String name, int age, int weight, int height, String activityLevel, boolean sex, String country,
                        String city){
@@ -26,34 +30,30 @@ public class UserProfile implements Serializable{
         Height = height;
         Weight = weight;
         Gender = sex;
+
+        // Set these values later once the user has defined a health/fitness goal.
+        // Will be initially set to negative values to denote that no gaol has been defined
+        Goal = "";
+        TargetWeight = -1;
+        poundsPerWeek = -1;
+
         setActivityLevel(activityLevel);
     }
 
-    // Constructor from file
-    public UserProfile(String name, int age, int weight, int height, Double activityLevel, boolean sex, String country,
-                       String city){
-        Name = name;
-        Age = age;
-        City = city;
-        Country = country;
-        Height = height;
-        Weight = weight;
-        Gender = sex;
-        setActivityLevel(activityLevel);
-    }
     // Getters
     public double getActivityLevel() { return ActivityLevel; }
     public double getPoundsPerWeek() { return poundsPerWeek; }
     public int getAge() { return Age; }
     public int getHeight() { return Height; }
     public int getWeight() { return Weight; }
-    public int getGoalWeight(){
-        return GoalWeight;
+    public int getTargetWeight(){
+        return TargetWeight;
     }
     public String getCity() { return City; }
     public String getCountry() { return Country; }
     public String getName() { return Name; }
     public boolean getGender() { return Gender;}
+    public String getGoal(){ return Goal; }
 
     // Activity level isn't as simple as the other setters.
     // Since its categories are descriptive and not numerical

@@ -208,12 +208,6 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
             // Restore simple saved data
 //            mSpGoals.setSelection(savedInstanceState.getInt("GOAL"));
 //            mSpActivity.setSelection(savedInstanceState.getInt("ACTIVITY"));
-
-            mSpTargetWeight =  getView().findViewById(R.id.spinner_targetWeight);
-            mSpTargetYear =  getView().findViewById(R.id.spinner_targetYear);
-            mSpTargetMonth =  getView().findViewById(R.id.spinner_targetMonth);
-            mTargetDay =  getView().findViewById(R.id.spinner_targetDay);
-
             mSpTargetWeight.setSelection(savedInstanceState.getInt("WEIGHT"));
             mSpTargetYear.setSelection(savedInstanceState.getInt("YEAR"));
             mSpTargetMonth.setSelection((savedInstanceState.getInt("MONTH")));

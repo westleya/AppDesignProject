@@ -400,18 +400,6 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
 
         if(savedInstanceState != null){
             // Restore simple saved data
-            // Assign all Views as members for easy access within class
-            m_etName = getView().findViewById(R.id.et_name);
-            m_spAge = getView().findViewById(R.id.spinner_age);
-            m_spCountry = getView().findViewById(R.id.spinner_country);
-            m_spCity = getView().findViewById(R.id.spinner_city);
-            m_spHeight = getView().findViewById(R.id.spinner_height);
-            m_spWeight = getView().findViewById(R.id.spinner_weight);
-            m_rbMale = getView().findViewById(R.id.radio_male);
-            m_rbFemale = getView().findViewById(R.id.radio_female);
-            m_ivProfilePic = getView().findViewById(R.id.iv_profile_pic_profile_edit);
-            m_spActivityLevel = getView().findViewById(R.id.spinner_activityLevel);
-
             m_etName.setText(savedInstanceState.getString("NAME"));
             m_spAge.setSelection(savedInstanceState.getInt("AGE"));
             m_spCountry.setSelection(savedInstanceState.getInt("COUNTRY"));
