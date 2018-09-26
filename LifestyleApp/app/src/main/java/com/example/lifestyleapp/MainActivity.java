@@ -1,7 +1,6 @@
 package com.example.lifestyleapp;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,28 +10,22 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.Window;
 
-import org.json.JSONException;
-
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements EditProfileFragment.OnDataPass,
         RCViewAdapter.DataPasser, EditGoalsFragment.OnDataPass {
@@ -41,7 +34,8 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     private UserProfile mUserProfile;
     private String fileName = "user_profile.txt";
     private String pictureName = "thumbnail.jpg";
-    private Fragment mFragment;
+    private Fragment mFragment; // Sufficient for the phone
+    private Fragment mTabletFragment; // Necessary for the two-pane nature of the tablet
     private Toolbar mToolBar;
     private Bitmap mProfilePicture; // Bitmaps aren't serializable so the picture has to be kept separate from the profile info
     private LocationManager mLocMgr;
@@ -57,36 +51,82 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Start a transaction for filling the screen with
+        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+
         // Find the toolbar view inside of the activity_layout
         mToolBar = findViewById(R.id.toolbar);
         mToolBar.setTitle("");
         // Add the toolbar in as the actionbar
         setSupportActionBar(mToolBar);
 
-        // If there's a saved instance state
-        if(savedInstanceState != null){
-            mFragment = getSupportFragmentManager().getFragment(savedInstanceState, "FRAG");
-        }
-
-        // check to see if it's a tablet or not
-        // TODO: TABLET STUFF
-
-        // check if there's a saved file or not. If not, bring up the edit_profile page.
-        // If there is, bring up the fragment_detail page.
-        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+        // Check if there's a saved instance state. If there is, then restore the fragment
+        // that was active. Check if there's a saved file. If there is a file, bring up
+        // the menu page. If there's no file, bring up the edit_profile page.
+        // The implementation is different depending on tablet/phone.
         File file = new File(getApplicationContext().getFilesDir(), fileName);
-        if(file.exists()) {
-            readProfileFromFile();
-            readPictureFromFile();
-            mFragment = new MasterFragment();
-        }
-        else {  // Bring up the edit profile page
-            if(mFragment == null){ // If there's no lifecycle being restored, make new fragment
-                mFragment = new EditProfileFragment();
+        if(savedInstanceState != null){
+            if(file.exists()) {
+                readProfileFromFile();
+                readPictureFromFile();
+                if(isTablet()) {
+                    // Set the Menu
+                    mFragment = new MasterFragment();
+                    ftrans.replace(R.id.fl_frag_masterlist_container_tablet, mFragment, "Menu_Fragment");
+                    // Set the detail pane
+                    mTabletFragment = getSupportFragmentManager().getFragment(savedInstanceState, "FRAG");
+                    ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
+                            mTabletFragment.getTag());
+                }
+                else {
+                    mFragment = getSupportFragmentManager().getFragment(savedInstanceState, "FRAG");
+                    ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, mFragment.getTag());
+                }
+            }
+            else { // They shouldn't have made it past the edit profile portion yet if this is true.
+                if (isTablet()) {
+                    // Set the detail pane
+                    // I'm electing not to set the menu pane in this case since we don't want the
+                    // user to be able to skip the profile creation process.
+                    mTabletFragment = getSupportFragmentManager().getFragment(savedInstanceState, "FRAG");
+                    ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
+                            mTabletFragment.getTag());
+                } else {
+                    mFragment = getSupportFragmentManager().getFragment(savedInstanceState, "FRAG");
+                    ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, mFragment.getTag());
+                }
             }
         }
+        else {
+            if(file.exists()) { // The user is restarting the app and has a profile.
+                readProfileFromFile();
+                readPictureFromFile();
+                if(isTablet()) {
+                    // Set the menu. The right pane can be left blank unless we decide otherwise aesthetically.
+                    mFragment = new MasterFragment();
+                    ftrans.replace(R.id.fl_frag_masterlist_container_tablet, mFragment, "Menu_Fragment");
+                }
+                else {
+                    mFragment = new MasterFragment();
+                    ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Menu_Fragment");
+                }
 
-        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
+            }
+            else { // The user is opening the app for the first time.
+                if (isTablet()) {
+                    // Set the detail pane
+                    // I'm electing not to set the menu pane in this case since we don't want the
+                    // user to be able to skip the profile creation process.
+                    mTabletFragment = new EditProfileFragment();
+                    ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
+                            "Edit_Profile_Fragment");
+                } else {
+                    mFragment = new EditProfileFragment();
+                    ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
+                }
+            }
+
+        }
         ftrans.commit();
     }
 
@@ -158,9 +198,18 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
      */
     @Override
     public void onSaveInstanceState(Bundle outState){
-        //Save the current fragment's instance
-        getSupportFragmentManager().putFragment(outState, "FRAG", mFragment);
+        // Since the left pane is just the menu in tablet
+        // it can be manually restored instead of saved.
 
+        // Save the current fragment's instance
+        // mTabletFragment is the fragment to be saved for tablet.
+        // I'm realizing that I may have used an inefficient naming convention.
+        if(isTablet()) {
+            getSupportFragmentManager().putFragment(outState, "FRAG", mTabletFragment);
+        }
+        else {
+            getSupportFragmentManager().putFragment(outState, "FRAG", mFragment);
+        }
         //Save the view hierarchy
         super.onSaveInstanceState(outState);
     }
@@ -188,11 +237,15 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         // Save user's credentials to file
         saveProfileToFile();
         savePictureToFile();
-
         // Now that the profile's been made, the menu fragment needs to be brought up.
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
         mFragment = new MasterFragment();
-        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Menu_Fragment");
+        if(isTablet()){
+            ftrans.replace(R.id.fl_frag_masterlist_container_tablet, mFragment, "Menu_Fragment");
+        }
+        else {
+            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Menu_Fragment");
+        }
         ftrans.addToBackStack(null);
         ftrans.commit();
 
@@ -209,10 +262,19 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
 
         // Now that the profile's been made, the menu fragment needs to be brought up.
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        mFragment = new GoalsFragment();
-        mFragment.setArguments(bundle);
-        ftrans.addToBackStack("back");
-        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Goal_Fragment");
+        if(isTablet()) {
+            mTabletFragment = new GoalsFragment();
+            mTabletFragment.setArguments(bundle);
+            ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
+                    "Edit_Goal_Fragment");
+        }
+        else {
+            mFragment = new GoalsFragment();
+            mFragment.setArguments(bundle);
+            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Goal_Fragment");
+        }
+
+        ftrans.addToBackStack(null);
         ftrans.commit();
     }
 
@@ -230,29 +292,42 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
 
         // FIGURE OUT POSITION OF CLICK (WHICH MENU ITEM WAS SELECTED)
         if(position == 0){ // GOALS
-            mFragment = new GoalsFragment();
             detailBundle.putString("GOAL", "No current Goal");
             detailBundle.putInt("CURRENT_WEIGHT", 10);
             detailBundle.putInt("TARGET_WEIGHT", 10);
             detailBundle.putInt("BMI", 10);
             detailBundle.putInt("TARGET_CALORIES", 100);
 
-            mFragment.setArguments(detailBundle);
-
-            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals_Fragment");
+            if(isTablet()) {
+                mTabletFragment = new GoalsFragment();
+                mTabletFragment.setArguments(detailBundle);
+                ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
+                        "Goals_Fragment");
+            }
+            else {
+                mFragment = new GoalsFragment();
+                mFragment.setArguments(detailBundle);
+                ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals_Fragment");
+            }
         }
         else if(position == 1){ // WEATHER
-            mFragment = new WeatherFragment();
-
             // Sanitize the location for querying the openWeather API
             String location = mUserProfile.getCity().replace(' ', '&');
             location += "&" + mUserProfile.getCountry().replace(' ', '&');
-
            // Add the data to the bundle to be sent to the fragment
             detailBundle.putString("location", location);
 
-            mFragment.setArguments(detailBundle);
-            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Weather_Fragment");
+            if(isTablet()) {
+                mTabletFragment = new WeatherFragment();
+                mTabletFragment.setArguments(detailBundle);
+                ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
+                        "Weather_Fragment");
+            }
+            else {
+                mFragment = new WeatherFragment();
+                mFragment.setArguments(detailBundle);
+                ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Weather_Fragment");
+            }
         }
         else{ // HIKING
             FindHikes();
@@ -331,33 +406,60 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
      * Handles when the logo/home button is clicked. Returns to the home menu
      */
     public void returnToHome(View view) {
-        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        mFragment = new MasterFragment();
-        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
-        ftrans.commit();
-        ftrans.addToBackStack(null);
+        // The home and profile buttons should only work after the user has finished filling
+        // out their profile and behave differently depending on tablet/phone.
+        File file = new File(getApplicationContext().getFilesDir(), fileName);
+        if(file.exists()) {
+            FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+            if(isTablet()) {
+                // I'm not sure what to do here since menu is always visible on tablet.
+                return;
+            }
+            else {
+                mFragment = new MasterFragment();
+                ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Menu_Fragment");
+            }
+            ftrans.addToBackStack(null);
+            ftrans.commit();
+        }
     }
 
     /**
      * Handles a button click to go to the Edit Profile page
      */
     public void goToEditProfile(View view){
+
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        mFragment = new EditProfileFragment();
-        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
-        ftrans.commit();
+        if(isTablet()) {
+            mTabletFragment = new EditProfileFragment();
+            ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
+                    "Edit_Profile_Fragment");
+        }
+        else {
+            mFragment = new EditProfileFragment();
+            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
+        }
         ftrans.addToBackStack(null);
+        ftrans.commit();
     }
 
     /**
      * Handles a button click to go to the Edit Goal page
      */
     public void goToEditGoal(View view){
+
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        mFragment = new EditGoalsFragment();
-        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
-        ftrans.commit();
+        if(isTablet()) {
+            mTabletFragment = new EditGoalsFragment();
+            ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
+                    "Edit_Goals_Fragment");
+        }
+        else {
+            mFragment = new EditGoalsFragment();
+            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Goals_Fragment");
+        }
         ftrans.addToBackStack(null);
+        ftrans.commit();
     }
 
     /**
@@ -365,23 +467,38 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
      */
     public void goToUserProfile(View view) {
 
-        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        Bundle detailBundle = new Bundle();
+        // The home and profile buttons should only work after the user has finished filling
+        // out their profile and behave differently depending on tablet/phone.
+        File file = new File(getApplicationContext().getFilesDir(), fileName);
+        if(file.exists()) {
+            FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+            Bundle detailBundle = new Bundle();
 
-        detailBundle.putString("NAME", mUserProfile.getName());
-        detailBundle.putString("AGE", Integer.toString(mUserProfile.getAge()));
-        detailBundle.putString("COUNTRY", mUserProfile.getCountry());
-        detailBundle.putString("CITY", mUserProfile.getCity());
-        detailBundle.putInt("HEIGHT", mUserProfile.getHeight());
-        detailBundle.putString("WEIGHT", Integer.toString(mUserProfile.getWeight()));
-        detailBundle.putBoolean("SEX", mUserProfile.getGender());
-        detailBundle.putDouble("ACTIVITY_LEVEL", mUserProfile.getActivityLevel());
+            detailBundle.putString("NAME", mUserProfile.getName());
+            detailBundle.putString("AGE", Integer.toString(mUserProfile.getAge()));
+            detailBundle.putString("COUNTRY", mUserProfile.getCountry());
+            detailBundle.putString("CITY", mUserProfile.getCity());
+            detailBundle.putInt("HEIGHT", mUserProfile.getHeight());
+            detailBundle.putString("WEIGHT", Integer.toString(mUserProfile.getWeight()));
+            detailBundle.putBoolean("SEX", mUserProfile.getGender());
+            detailBundle.putDouble("ACTIVITY_LEVEL", mUserProfile.getActivityLevel());
+            detailBundle.putParcelable("PICTURE", mProfilePicture );
+            //TODO: add profilepic
 
-        mFragment = new ProfileFragment();
-        mFragment.setArguments(detailBundle);
-        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
-        ftrans.commit();
-        ftrans.addToBackStack(null);
+            if(isTablet()) {
+                mTabletFragment = new ProfileFragment();
+                mTabletFragment.setArguments(detailBundle);
+                ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
+                        "Edit_Profile_Fragment");
+            }
+            else {
+                mFragment = new ProfileFragment();
+                mFragment.setArguments(detailBundle);
+                ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
+            }
+            ftrans.addToBackStack(null);
+            ftrans.commit();
+        }
     }
 
 }
