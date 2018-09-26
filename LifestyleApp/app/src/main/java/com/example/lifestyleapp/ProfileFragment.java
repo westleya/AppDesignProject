@@ -38,8 +38,8 @@ public class ProfileFragment extends Fragment {
         mTvCity.setText(getArguments().getString("CITY"));
         mTvHeight.setText(GeneralUtils.inchesToHeight(getArguments().getInt("HEIGHT")));
         mTvWeight.setText(getArguments().getString("WEIGHT"));
-        mTvSex.setText(GeneralUtils.sexToString(getArguments().getBoolean("SEX")));
-        mTvActivity.setText(GeneralUtils.doubleToActivityLevel(getArguments().getDouble("ACTIVITY_LEVEL")));
+        mTvSex.setText(getArguments().getString("SEX"));
+        mTvActivity.setText(getArguments().getString("ACTIVITY_LEVEL"));
 
         return view;
     }
@@ -69,6 +69,7 @@ public class ProfileFragment extends Fragment {
 
         //Save the view hierarchy
         super.onSaveInstanceState(outState);
+
     }
 
     @Override
@@ -76,6 +77,15 @@ public class ProfileFragment extends Fragment {
 
         if(savedInstanceState != null){
             // Restore simple saved data
+            mTvName = getView().findViewById(R.id.tv_name);
+            mTvAge = getView().findViewById(R.id.tv_age);
+            mTvCountry = getView().findViewById(R.id.tv_country);
+            mTvCity = getView().findViewById(R.id.tv_city);
+            mTvHeight = getView().findViewById(R.id.tv_height);
+            mTvWeight = getView().findViewById(R.id.tv_weight);
+            mTvSex = getView().findViewById(R.id.tv_sex);
+            mTvActivity = getView().findViewById(R.id.tv_activityLevel);
+
             mTvName.setText(savedInstanceState.getString("NAME"));
             mTvAge.setText(savedInstanceState.getString("AGE"));
             mTvCountry.setText(savedInstanceState.getString("COUNTRY"));
@@ -87,5 +97,6 @@ public class ProfileFragment extends Fragment {
         }
 
         super.onViewStateRestored(savedInstanceState);
+
     }
 }

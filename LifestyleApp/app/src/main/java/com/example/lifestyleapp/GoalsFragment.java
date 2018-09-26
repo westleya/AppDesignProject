@@ -48,4 +48,53 @@ public class GoalsFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        // Get all string and int values associated with this fragment
+//        String goal = mSpGoals.getSelectedItem().toString();
+//        String activity = mSpActivity.getSelectedItem().toString();
+        String goal = mTvGoals.getText().toString();
+        String currentWeight = mTvCurrentWeight.getText().toString();
+        String targetWeight = mTvTargetWeight.getText().toString();
+        String currentBMI = mTvCurrentBMI.getText().toString();
+        String targetCalorie = mTvTargetCalorie.getText().toString();
+
+
+        // Store all string and int values
+//        outState.putString("GOAL", goal);
+//        outState.putString("ACTIVITY", activity);
+        outState.putString("goal", goal);
+        outState.putString("currentWeight", currentWeight);
+        outState.putString("targetWeight", targetWeight);
+        outState.putString("currentBMI", currentBMI);
+        outState.putString("targetCalorie", targetCalorie);
+
+        //Save the view hierarchy
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onViewStateRestored (Bundle savedInstanceState){
+
+        if(savedInstanceState != null){
+            // Restore simple saved data
+//            mSpGoals.setSelection(savedInstanceState.getInt("GOAL"));
+//            mSpActivity.setSelection(savedInstanceState.getInt("ACTIVITY"));
+
+            mTvGoals = getView().findViewById(R.id.tv_goal);
+            mTvCurrentWeight = getView().findViewById(R.id.tv_currentWeight);
+            mTvTargetWeight = getView().findViewById(R.id.tv_targetWeight);
+            mTvCurrentBMI = getView().findViewById(R.id.tv_currentBMI);
+            mTvTargetCalorie = getView().findViewById(R.id.tv_targetCalorie);
+
+            mTvGoals.setText(savedInstanceState.getString("goal"));
+            mTvCurrentWeight.setText(savedInstanceState.getString("currentWeight"));
+            mTvTargetWeight.setText(savedInstanceState.getString("targetWeight"));
+            mTvCurrentBMI.setText(savedInstanceState.getString("currentBMI"));
+            mTvTargetCalorie.setText(savedInstanceState.getString("targetCalorie"));
+        }
+
+        super.onViewStateRestored(savedInstanceState);
+    }
+
 }
