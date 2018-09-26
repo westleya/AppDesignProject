@@ -1,6 +1,8 @@
 package com.example.lifestyleapp;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +20,31 @@ public class WeatherUtils {
     // Parses JSON data from the string, data, provided
     public static WeatherData CreateWeatherData(String data) throws JSONException {
         WeatherData weatherData = new WeatherData();
+
+        //Start parsing JSON data
+        JSONObject jsonObject = new JSONObject(data); //Must throw JSONException
+        JSONObject jsonMain = jsonObject.getJSONObject("main");
+        JSONObject jsonWind = jsonObject.getJSONObject("wind");
+        JSONArray jsonWeather = jsonObject.getJSONArray("weather");
+
+        JSONObject jsonWeatherObj = (JSONObject) jsonWeather.get(0);
+
+        WeatherData.CurrentCondition currentCondition = weatherData.getCurrentCondition();
+        currentCondition.setHumidity(jsonMain.getInt("humidity"));
+        currentCondition.setPressure(jsonMain.getInt("pressure"));
+        currentCondition.setDescription(jsonWeatherObj.getString("description"));
+        weatherData.setCurrentCondition(currentCondition);
+
+        //Get the temperature, wind and cloud data.
+        WeatherData.Temperature temperature = weatherData.getTemperature();
+        temperature.setMaxTemp(jsonMain.getDouble("temp_max"));
+        temperature.setMinTemp(jsonMain.getDouble("temp_min"));
+        temperature.setTemp(jsonMain.getDouble("temp"));
+        weatherData.setTemperature(temperature);
+
+        WeatherData.Wind wind = weatherData.getWind();
+        wind.setSpeed(jsonWind.getDouble("speed"));
+        weatherData.setWind(wind);
 
 
         return weatherData;
