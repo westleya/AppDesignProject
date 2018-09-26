@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -16,11 +17,12 @@ public class RCViewAdapter extends RecyclerView.Adapter<RCViewAdapter.ViewHolder
     private Context mContext;
     private DataPasser mDataPasser;
     private ArrayList<String> mMenuItem, mMenuDescriptions;
+    private ArrayList<Integer> mMenuIcons;
 
     /**
      * Constructor
-     * @param mMenuTitle - List of menu items
-     * @param menuDescriptions - Description of menu items
+     * @param mMenuTitle - List of fragment_detail items
+     * @param menuDescriptions - Description of fragment_detail items
      */
     public RCViewAdapter(ArrayList<String> mMenuTitle, ArrayList<String> menuDescriptions) {
         this.mMenuItem = mMenuTitle;
@@ -42,7 +44,7 @@ public class RCViewAdapter extends RecyclerView.Adapter<RCViewAdapter.ViewHolder
         }
 
         LayoutInflater layoutInflater = LayoutInflater.from(mContext);
-        View myView = layoutInflater.inflate(R.layout.menu, parent,false);
+        View myView = layoutInflater.inflate(R.layout.fragment_detail, parent,false);
         return new ViewHolder(myView);
     }
 
@@ -50,22 +52,37 @@ public class RCViewAdapter extends RecyclerView.Adapter<RCViewAdapter.ViewHolder
     public class ViewHolder extends RecyclerView.ViewHolder{
         protected View itemLayout;
         protected TextView itemTvMenu, itemTvDes;
+        protected ImageView itemIvImage;
 
         public ViewHolder(View view){
             super(view);
             itemLayout = view;
-            itemTvMenu = (TextView) view.findViewById(R.id.tv_menu);
-            itemTvDes = (TextView) view.findViewById(R.id.tv_menu_description);
+            itemTvMenu = view.findViewById(R.id.tv_menu);
+            itemTvDes = view.findViewById(R.id.tv_menu_description);
+            itemIvImage = view.findViewById(R.id.menu_item_icon);
         }
     }
 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
+
+        // Set the menu items
         holder.itemTvMenu.setText(mMenuItem.get(position));
+        holder.itemTvDes.setText(mMenuDescriptions.get(position));
+        // Set the images for each menu item
+        if(position == 0){
+            holder.itemIvImage.setImageResource(R.drawable.goals);
+        }
+        else if (position == 1){
+            holder.itemIvImage.setImageResource(R.drawable.weather);
+        }
+        else{
+            holder.itemIvImage.setImageResource(R.drawable.hiking);
+        }
+
 
         // Controls what happens when an item in the list has been clicked
-        holder.itemTvDes.setText(mMenuDescriptions.get(position));
         holder.itemLayout.setOnClickListener(new View.OnClickListener(){
                                                  @Override
                                                  public void onClick(View view) {
@@ -77,7 +94,7 @@ public class RCViewAdapter extends RecyclerView.Adapter<RCViewAdapter.ViewHolder
 
 
     /**
-     * Gets the number of items in the menu
+     * Gets the number of items in the fragment_detail
      */
     @Override
     public int getItemCount() {

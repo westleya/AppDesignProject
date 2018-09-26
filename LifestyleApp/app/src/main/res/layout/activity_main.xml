@@ -1,11 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="0dp"
-    tools:context=".MainActivity"
-    android:id="@+id/fl_frag_masterlist_container_phone"
-    >
-</FrameLayout>
+    tools:context=".MainActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:background="@color/ApplePink"
+        android:elevation="4dp">
+        <android.support.v7.widget.AppCompatImageView
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/logo_331"/>
+    </android.support.v7.widget.Toolbar>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_below="@id/toolbar"
+        android:id="@+id/fl_frag_masterlist_container_phone">
+
+        <!--
+
+            put your activity content here
+            You can change the layout to anything you want
+            right now it is a linear layout
+
+        -->
+
+
+    </LinearLayout>
+
+</RelativeLayout>

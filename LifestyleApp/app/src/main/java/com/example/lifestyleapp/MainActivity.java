@@ -6,6 +6,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -18,11 +21,18 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     private String profileName = "user_profile.txt";
     private String pictureName = "thumbnail.jpg";
     private Fragment mFragment;
+    private Toolbar mToolBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Find the toolbar view inside of the activity_layout
+        mToolBar = findViewById(R.id.toolbar);
+        mToolBar.setTitle("");
+        // Add the toolbar in as the actionbar
+        setSupportActionBar(mToolBar);
 
         // If there's a saved instance state
         if(savedInstanceState != null){
@@ -32,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         // check to see if it's a tablet or not
 
         // check if there's a saved file or not. If not, bring up the edit_profile page.
-        // If there is, bring up the menu page.
+        // If there is, bring up the fragment_detail page.
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
         File file = new File(getApplicationContext().getFilesDir(), profileName);
         if(file.exists()) {
@@ -167,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         ftrans.commit();
 
     }
+
 
     // Create an action bar
 }
