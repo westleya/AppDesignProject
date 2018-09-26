@@ -1,32 +1,68 @@
 package com.example.lifestyleapp;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 
+import org.json.JSONException;
+
+import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements EditProfileFragment.OnDataPass, RCViewAdapter.DataPasser
-{
+, LoaderManager.LoaderCallbacks<String> {
 
     private UserProfile mUserProfile;
-    private String profileName = "user_profile.txt";
+    private String fileName = "user_profile.txt";
     private String pictureName = "thumbnail.jpg";
     private Fragment mFragment;
     private Toolbar mToolBar;
+    private Bitmap mProfilePicture; // Bitmaps aren't serializable so the picture has to be kept separate from the profile info
+    private LocationManager mLocMgr;
+    private double longitude;
+    private double latitude;
+    private String mSearchFor = "hikes";
+    public static final String URL_STRING = "query";
+    WeatherData mWeatherData;
+
+    //Uniquely identify loader
+    private static final int SEARCH_LOADER = 11;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getSupportLoaderManager().initLoader(SEARCH_LOADER, null, this);
 
         // Find the toolbar view inside of the activity_layout
         mToolBar = findViewById(R.id.toolbar);
@@ -44,8 +80,9 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         // check if there's a saved file or not. If not, bring up the edit_profile page.
         // If there is, bring up the fragment_detail page.
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        File file = new File(getApplicationContext().getFilesDir(), profileName);
+        File file = new File(getApplicationContext().getFilesDir(), fileName);
         if(file.exists()) {
+            readProfileFromFile();
             mFragment = new MasterFragment();
         }
         else {  // Bring up the edit profile page
@@ -58,6 +95,32 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         ftrans.commit();
     }
 
+    private void readProfileFromFile() {
+        try {
+            FileInputStream in = openFileInput(fileName);
+            ObjectInputStream o_in = new ObjectInputStream(in);
+            mUserProfile = (UserProfile) o_in.readObject();
+            o_in.close();
+            in.close();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    private void readPictureFromFile() {
+        try{
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            mProfilePicture = BitmapFactory.decodeFile(pictureName, options);
+
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public boolean isTablet() {
         return getResources().getBoolean(R.bool.isTablet);
     }
@@ -65,37 +128,14 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     public void saveProfileToFile() {
 
         // Open a file and write to it
-        File file = new File(getApplicationContext().getFilesDir(), profileName);
+        File file = new File(getApplicationContext().getFilesDir(), fileName);
         if(file.exists()) { file.delete(); }
         try {
-            FileOutputStream out = openFileOutput(profileName, Context.MODE_PRIVATE);
-            DataOutputStream d_out = new DataOutputStream(out);
-            d_out.writeChars(mUserProfile.getName());
-            d_out.writeInt(mUserProfile.getAge());
-            d_out.writeChars(mUserProfile.getCity());
-            d_out.writeChars(mUserProfile.getCountry());
-            d_out.writeInt(mUserProfile.getHeight());
-            d_out.writeInt(mUserProfile.getWeight());
-            d_out.writeBoolean(mUserProfile.getGender());
-            d_out.writeDouble(mUserProfile.getPoundsPerWeek());
-            d_out.writeDouble(mUserProfile.getActivityLevel());
-            d_out.flush();
-            d_out.close();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void saveImageToFile() {
-        // Open a file and write to it
-        File file = new File(getApplicationContext().getFilesDir(), pictureName);
-        if(file.exists()) { file.delete(); }
-        try {
-            FileOutputStream out = openFileOutput(pictureName, Context.MODE_PRIVATE);
-            mUserProfile.getProfilePicture().compress(Bitmap.CompressFormat.JPEG, 90, out);
-            out.flush();
+            FileOutputStream out = openFileOutput(fileName, Context.MODE_PRIVATE);
+            ObjectOutputStream o_out = new ObjectOutputStream(out);
+            o_out.writeObject(mUserProfile);
+            o_out.flush();
+            o_out.close();
             out.close();
         }
         catch (Exception e) {
@@ -103,7 +143,21 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         }
     }
 
+    private void savePictureToFile() {
+        // Open a file and write to it
+        File file = new File(getApplicationContext().getFilesDir(), pictureName);
+        if(file.exists()){file.delete();}
+        try{
+            FileOutputStream out = openFileOutput(pictureName, Context.MODE_PRIVATE);
+            mProfilePicture.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
 
+        }
+    }
     /**
      * Saves data required for lifecycle awareness lifecycle awareness
      */
@@ -127,19 +181,27 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
      * @param sex - female = false, male = true
      * @param country - country where user lives
      * @param city - city where user lives
-     * @param profilePic - profile picture for user
      */
     @Override
     public void passData(String name, int age, int weight, int height, String activityLevel, boolean sex, String country,
-                         String city, Bitmap profilePic) {
+                         String city, Bitmap picture) {
 
+        mProfilePicture = picture;
         // Create the UserProfile
-        UserProfile mUserProfile = new UserProfile(name, age, weight, height, activityLevel, sex, country, city, profilePic);
+        mUserProfile = new UserProfile(name, age, weight, height, activityLevel, sex, country, city);
 
         // Save user's credentials to file
         saveProfileToFile();
-        saveImageToFile();
+        savePictureToFile();
+
+        // Now that the profile's been made, the menu fragment needs to be brought up.
+        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+        mFragment = new MasterFragment();
+        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
+        ftrans.commit();
+
     }
+
 
     /**
      * Handles the incoming position from the Recycler View Adapter
@@ -162,22 +224,198 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             detailBundle.putInt("TARGET_CALORIES", 100);
 
             mFragment.setArguments(detailBundle);
+            ftrans.addToBackStack("back");
             ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals Fragment");
+
+            // Create and inflate the fragment
+            ftrans.commit();
         }
         else if(position == 1){ // WEATHER
             mFragment = new WeatherFragment();
-            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
+
+            // Sanitize the location for querying the openWeather API
+            String location = mUserProfile.getCity().replace(' ', '&');
+            location += "&" + mUserProfile.getCountry().replace(' ', '&');
+
+            // Get the weather data
+            getWeather(location);
+
         }
         else{ // HIKING
-            // WES, HOW DO I DO THIS?
-            //findHikes(this, mUserProfile);
+            FindHikes();
         }
-
-        // Create and inflate the
-        ftrans.commit();
 
     }
 
+
+////////FIND LOCAL HIKES////////
+
+    // Use GPS to get the nearest hikes if possible.
+    // If not possible, use the city and country provided.
+    public void FindHikes() {
+        mLocMgr = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        Uri queryUri;
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                        PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+
+
+            // Use the user's country and city to find hikes since no location is specified
+            queryUri = Uri.parse("geo:0,0?q=" + Uri.encode(mUserProfile.getCity() + ", " + mUserProfile.getCountry() +
+                    " " + mSearchFor));
+        } else {
+            // Update the longitude and latitude variables with the device's coordinates
+            mLocMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
+
+            // Construct the search for hikes from the device's coordinates
+            queryUri = Uri.parse("geo:" + longitude + "," + latitude + "?q=" + mSearchFor);
+        }
+        // Implicit Intent to Maps App
+        Intent mapsIntent = new Intent(Intent.ACTION_VIEW, queryUri);
+
+        // If an activity exists for this intent start it
+        if (mapsIntent.resolveActivity(this.getPackageManager()) != null) {
+            this.startActivity(mapsIntent);
+        }
+    }
+    private final LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+
+
+    };
+
+////////GET WEATHER DATA/////////////
+
+
+    private void getWeather(String location) {
+
+        Bundle searchQueryBundle = new Bundle();
+        searchQueryBundle.putString(URL_STRING, location);
+        LoaderManager loaderManager = getSupportLoaderManager();
+        Loader<String> searchLoader = loaderManager.getLoader(SEARCH_LOADER);
+
+        if(searchLoader == null) {
+            loaderManager.initLoader(SEARCH_LOADER, searchQueryBundle,this);
+        }
+        else {
+            loaderManager.restartLoader(SEARCH_LOADER, searchQueryBundle,this);
+        }
+    }
+
+    @NonNull
+    @Override
+    public Loader<String> onCreateLoader(int i, @Nullable final Bundle bundle) {
+        return new AsyncTaskLoader<String>(this) {
+            private String mLoaderData;
+
+            @Override
+            protected void onStartLoading() {
+                if(bundle == null) {
+                    return;
+                }
+                if(mLoaderData != null) {
+                    //Cache data for onPause instead of loading all over again
+                    //Other config changes are handled automatically
+                    deliverResult(mLoaderData);
+                }
+                else {
+                    forceLoad();
+                }
+            }
+
+            @Nullable
+            @Override
+            public String loadInBackground() {
+                String location = bundle.getString(URL_STRING);
+                URL weatherDataURL = WeatherUtils.buildURLFromLocation(location);
+                String jsonWeatherData = null;
+                try {
+                    jsonWeatherData = WeatherUtils.getDataFromURL(weatherDataURL);
+                    return jsonWeatherData;
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            @Override
+            public void deliverResult(@Nullable String data) {
+                mLoaderData = data;
+                super.deliverResult(data);
+            }
+        };
+
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<String> loader, String jsonWeatherData) {
+        if(jsonWeatherData != null) {
+            try {
+                mWeatherData = WeatherUtils.CreateWeatherData(jsonWeatherData);
+            }
+            catch (JSONException e) {
+                e.printStackTrace();
+            }
+            if(mWeatherData != null) {
+                FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+                Bundle detailBundle = new Bundle();
+
+                // Sanitize the location for querying the openWeather API
+                String location = mUserProfile.getCity().replace(' ', '&');
+                location += "&" + mUserProfile.getCountry().replace(' ', '&');
+
+                // location, weather, wind, humidity, pressure;
+                // Add the data to the bundle to be sent to the fragment
+                detailBundle.putString("location", location);
+                detailBundle.putString("weather", mWeatherData.getCurrentCondition().getDescription());
+                detailBundle.putString("wind", Double.toString(mWeatherData.getWind().getSpeed()));
+                detailBundle.putString("temperature", Double.toString((9 * ((
+                        mWeatherData.getTemperature().getTemp() - 273) / 5) + 32)));
+                detailBundle.putString("humidity", Double.toString(mWeatherData.getCurrentCondition().getHumidity()));
+                detailBundle.putString("pressure", Double.toString(mWeatherData.getCurrentCondition().getPressure()));
+
+                mFragment.setArguments(detailBundle);
+                ftrans.addToBackStack("back");
+                ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
+                ftrans.commit();
+            }
+
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<String> loader) {
+
+    }
 
     // Create an action bar
 }

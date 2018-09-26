@@ -2,7 +2,9 @@ package com.example.lifestyleapp;
 
 import android.graphics.Bitmap;
 
-public class UserProfile {
+import java.io.Serializable;
+
+public class UserProfile implements Serializable{
 
     private String Name;
     private int Age;
@@ -12,12 +14,11 @@ public class UserProfile {
     private int Weight; // in lbs
     private int GoalWeight; // in lbs
     private boolean Gender; // M=true, F=false
-    private Bitmap ProfilePicture;
     private double poundsPerWeek; // In lbs per week
     private double ActivityLevel; // Sedentary (1.53), Moderate (1.76), Active (2.25)
     // Constructor
     public UserProfile(String name, int age, int weight, int height, String activityLevel, boolean sex, String country,
-                       String city, Bitmap profilePic){
+                       String city){
         Name = name;
         Age = age;
         City = city;
@@ -25,12 +26,22 @@ public class UserProfile {
         Height = height;
         Weight = weight;
         Gender = sex;
-        ProfilePicture = profilePic;
         setActivityLevel(activityLevel);
     }
 
+    // Constructor from file
+    public UserProfile(String name, int age, int weight, int height, Double activityLevel, boolean sex, String country,
+                       String city){
+        Name = name;
+        Age = age;
+        City = city;
+        Country = country;
+        Height = height;
+        Weight = weight;
+        Gender = sex;
+        setActivityLevel(activityLevel);
+    }
     // Getters
-    public Bitmap getProfilePicture() { return ProfilePicture; }
     public double getActivityLevel() { return ActivityLevel; }
     public double getPoundsPerWeek() { return poundsPerWeek; }
     public int getAge() { return Age; }
