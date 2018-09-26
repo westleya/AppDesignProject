@@ -40,7 +40,7 @@ import java.io.ObjectOutputStream;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements EditProfileFragment.OnDataPass, RCViewAdapter.DataPasser
-, LoaderManager.LoaderCallbacks<String> {
+, LoaderManager.LoaderCallbacks<String>, GoalsFragment.OnDataPass, ProfileFragment.OnDataPass, EditGoalsFragment.OnDataPass {
 
     private UserProfile mUserProfile;
     private String fileName = "user_profile.txt";
@@ -197,11 +197,67 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         // Now that the profile's been made, the menu fragment needs to be brought up.
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
         mFragment = new MasterFragment();
+        ftrans.addToBackStack("back");
         ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
         ftrans.commit();
 
     }
 
+    @Override
+    public void passDataGoal(String goal, String currentWeight, String targetWeight, String currentBMI, String targetCalorie) {
+
+        Bundle bundle = new Bundle();
+        bundle.putString("GOAL", goal);
+        bundle.putString("CURRENT_GOAL", currentWeight);
+        bundle.putString("TARGET_WEIGHT", targetWeight);
+        bundle.putString("CURRENT_BMI", currentBMI);
+        bundle.putString("TARGET_CALORIE", targetCalorie);
+        // Now that the profile's been made, the menu fragment needs to be brought up.
+        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+        mFragment = new EditGoalsFragment();
+        mFragment.setArguments(bundle);
+        ftrans.addToBackStack("back");
+        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals_Fragment");
+        ftrans.commit();
+    }
+
+    @Override
+    public void passDataProfile(String name, int age, int weight, int height, String activityLevel, boolean sex, String country,
+             String city) {
+        Bundle bundle = new Bundle();
+        bundle.putString("NAME", name);
+        bundle.putInt("AGE", age);
+        bundle.putInt("WEIGHT", weight);
+        bundle.putInt("HEIGHT", height);
+        bundle.putString("ACTIVITY_LEVEL", activityLevel);
+        bundle.putBoolean("SEX", sex);
+        bundle.putString("COUNTRY", country);
+        bundle.putString("CITY", city);
+        // Now that the profile's been made, the menu fragment needs to be brought up.
+        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+        mFragment = new EditProfileFragment();
+        mFragment.setArguments(bundle);
+        ftrans.addToBackStack("back");
+        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Profile_Fragment");
+        ftrans.commit();
+    }
+
+    @Override
+    public void passData(int weight, int year, int month, int day) {
+        Bundle bundle = new Bundle();
+        bundle.putInt("WEIGHT", weight);
+        bundle.putInt("YEAR", year);
+        bundle.putInt("MONTH", month);
+        bundle.putInt("DAY", day);
+
+        // Now that the profile's been made, the menu fragment needs to be brought up.
+        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+        mFragment = new EditProfileFragment();
+        mFragment.setArguments(bundle);
+        ftrans.addToBackStack("back");
+        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Goal_Fragment");
+        ftrans.commit();
+    }
 
     /**
      * Handles the incoming position from the Recycler View Adapter
