@@ -35,7 +35,7 @@ import java.io.ObjectOutputStream;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements EditProfileFragment.OnDataPass, RCViewAdapter.DataPasser
-, LoaderManager.LoaderCallbacks<String>, GoalsFragment.OnDataPass, ProfileFragment.OnDataPass, EditGoalsFragment.OnDataPass {
+, LoaderManager.LoaderCallbacks<String>, EditGoalsFragment.OnDataPass {
 
     private UserProfile mUserProfile;
     private String fileName = "user_profile.txt";
@@ -201,44 +201,6 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
 
     }
 
-    @Override
-    public void passDataGoal(String goal, String currentWeight, String targetWeight, String currentBMI, String targetCalorie) {
-
-        Bundle bundle = new Bundle();
-        bundle.putString("GOAL", goal);
-        bundle.putString("CURRENT_GOAL", currentWeight);
-        bundle.putString("TARGET_WEIGHT", targetWeight);
-        bundle.putString("CURRENT_BMI", currentBMI);
-        bundle.putString("TARGET_CALORIE", targetCalorie);
-        // Now that the profile's been made, the menu fragment needs to be brought up.
-        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        mFragment = new EditGoalsFragment();
-        mFragment.setArguments(bundle);
-        ftrans.addToBackStack("back");
-        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals_Fragment");
-        ftrans.commit();
-    }
-
-    @Override
-    public void passDataProfile(String name, int age, int weight, int height, String activityLevel, boolean sex, String country,
-             String city) {
-        Bundle bundle = new Bundle();
-        bundle.putString("NAME", name);
-        bundle.putInt("AGE", age);
-        bundle.putInt("WEIGHT", weight);
-        bundle.putInt("HEIGHT", height);
-        bundle.putString("ACTIVITY_LEVEL", activityLevel);
-        bundle.putBoolean("SEX", sex);
-        bundle.putString("COUNTRY", country);
-        bundle.putString("CITY", city);
-        // Now that the profile's been made, the menu fragment needs to be brought up.
-        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        mFragment = new EditProfileFragment();
-        mFragment.setArguments(bundle);
-        ftrans.addToBackStack("back");
-        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Profile_Fragment");
-        ftrans.commit();
-    }
 
     @Override
     public void passData(int weight, int year, int month, int day) {
@@ -258,7 +220,8 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     }
 
     /**
-     * Handles the incoming position from the Recycler View Adapter
+     * Handles the incoming position from the Recycler View Adapter.
+     * Basically handles which menu item was clicked.
      *
      * @param position
      */
@@ -278,7 +241,6 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             detailBundle.putInt("TARGET_CALORIES", 100);
 
             mFragment.setArguments(detailBundle);
-            ftrans.addToBackStack("back");
             ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals Fragment");
 
             // Create and inflate the fragment
@@ -485,15 +447,49 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     }
 
     /**
-     * Handles when the user profile icon is clicked. Goes to the user profile screen
+     * Handles a button click to go to the Edit Profile page
      */
-    public void goToUserProfile(View view) {
+    public void goToEditProfile(View view){
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        mFragment = new ProfileFragment();
+        mFragment = new EditProfileFragment();
         ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
         ftrans.commit();
         ftrans.addToBackStack(null);
     }
 
-    // Create an action bar
+    /**
+     * Handles a button click to go to the Edit Goal page
+     */
+    public void goToEditGoal(View view){
+        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+        mFragment = new EditGoalsFragment();
+        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
+        ftrans.commit();
+        ftrans.addToBackStack(null);
+    }
+
+    /**
+     * Handles when the user profile icon is clicked. Goes to the user profile screen
+     */
+    public void goToUserProfile(View view) {
+
+        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+        Bundle detailBundle = new Bundle();
+
+        detailBundle.putString("NAME", mUserProfile.getName());
+        detailBundle.putString("AGE", Integer.toString(mUserProfile.getAge()));
+        detailBundle.putString("COUNTRY", mUserProfile.getCountry());
+        detailBundle.putString("CITY", mUserProfile.getCity());
+        detailBundle.putInt("HEIGHT", mUserProfile.getHeight());
+        detailBundle.putString("WEIGHT", Integer.toString(mUserProfile.getWeight()));
+        detailBundle.putBoolean("SEX", mUserProfile.getGender());
+        detailBundle.putDouble("ACTIVITY_LEVEL", mUserProfile.getActivityLevel());
+
+        mFragment = new ProfileFragment();
+        mFragment.setArguments(detailBundle);
+        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
+        ftrans.commit();
+        ftrans.addToBackStack(null);
+    }
+
 }

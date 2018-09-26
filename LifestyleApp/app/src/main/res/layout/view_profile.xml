@@ -146,7 +146,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="Edit"
-        android:id="@+id/button_editProfile"/>
+        android:id="@+id/button_editProfile"
+        android:onClick="goToEditProfile"/>
 
 
 

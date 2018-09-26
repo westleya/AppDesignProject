@@ -89,5 +89,6 @@
         android:layout_height="wrap_content"
         android:text="Edit"
         android:layout_gravity="center"
-        android:id="@+id/button_editGoal"/>
+        android:id="@+id/button_editGoal"
+        android:onClick="goToEditGoal"/>
 </LinearLayout>
