@@ -35,7 +35,11 @@ import java.io.ObjectOutputStream;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements EditProfileFragment.OnDataPass, RCViewAdapter.DataPasser
+<<<<<<< HEAD
 , LoaderManager.LoaderCallbacks<String>, EditGoalsFragment.OnDataPass {
+=======
+, GoalsFragment.OnDataPass, ProfileFragment.OnDataPass, EditGoalsFragment.OnDataPass {
+>>>>>>> 22cb9d67327f414cfa6276824f0ff25aab6707dd
 
     private UserProfile mUserProfile;
     private String fileName = "user_profile.txt";
@@ -47,8 +51,6 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     private double longitude;
     private double latitude;
     private String mSearchFor = "hikes";
-    public static final String URL_STRING = "query";
-    WeatherData mWeatherData;
 
     //Uniquely identify loader
     private static final int SEARCH_LOADER = 11;
@@ -57,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getSupportLoaderManager().initLoader(SEARCH_LOADER, null, this);
 
         // Find the toolbar view inside of the activity_layout
         mToolBar = findViewById(R.id.toolbar);
@@ -194,10 +195,9 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         // Now that the profile's been made, the menu fragment needs to be brought up.
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
         mFragment = new MasterFragment();
-        ftrans.addToBackStack("back");
-        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
-        ftrans.commit();
+        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Menu_Fragment");
         ftrans.addToBackStack(null);
+        ftrans.commit();
 
     }
 
@@ -241,11 +241,15 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             detailBundle.putInt("TARGET_CALORIES", 100);
 
             mFragment.setArguments(detailBundle);
+<<<<<<< HEAD
             ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals Fragment");
 
             // Create and inflate the fragment
             ftrans.commit();
             ftrans.addToBackStack(null);
+=======
+            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals_Fragment");
+>>>>>>> 22cb9d67327f414cfa6276824f0ff25aab6707dd
         }
         else if(position == 1){ // WEATHER
             mFragment = new WeatherFragment();
@@ -254,16 +258,20 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             String location = mUserProfile.getCity().replace(' ', '&');
             location += "&" + mUserProfile.getCountry().replace(' ', '&');
 
-            // Get the weather data
-            getWeather(location);
+           // Add the data to the bundle to be sent to the fragment
+            detailBundle.putString("location", location);
 
+            mFragment.setArguments(detailBundle);
+            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Weather_Fragment");
         }
         else{ // HIKING
             FindHikes();
         }
 
+        // Create and inflate the fragment
+        ftrans.addToBackStack(null);
+        ftrans.commit();
     }
-
 
 ////////FIND LOCAL HIKES////////
 
@@ -328,6 +336,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
 
     };
 
+<<<<<<< HEAD
 ////////GET WEATHER DATA/////////////
 
 
@@ -493,3 +502,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     }
 
 }
+=======
+    // Create an action bar
+}
+>>>>>>> 22cb9d67327f414cfa6276824f0ff25aab6707dd
