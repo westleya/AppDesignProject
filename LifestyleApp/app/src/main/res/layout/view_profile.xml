@@ -139,13 +139,14 @@
             android:layout_height="wrap_content"
             android:text="Active"
             android:textSize="18dp"
-            android:id="@+id/tv_status"/>
+            android:id="@+id/tv_activityLevel"/>
     </LinearLayout>
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Edit"/>
+        android:text="Edit"
+        android:id="@+id/button_editProfile"/>
 
 
 

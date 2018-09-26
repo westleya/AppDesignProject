@@ -32,11 +32,11 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.button_calculate:{
-                if (!mSpTargetWeight.isSelected() ||
-                        !mSpTargetYear.isSelected() || !mSpTargetMonth.isSelected() || !mTargetDay.isSelected()) {
-                    Toast.makeText(this.getContext(), "Please select all items.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+//                if (!mSpTargetWeight.isSelected() ||
+//                        !mSpTargetYear.isSelected() || !mSpTargetMonth.isSelected() || !mTargetDay.isSelected()) {
+//                    Toast.makeText(this.getContext(), "Please select all items.", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
 //                String goal = mSpGoals.getSelectedItem().toString();
 //                String activity = mSpActivity.getSelectedItem().toString();
                 int weight = Integer.parseInt(mSpTargetWeight.getSelectedItem().toString());
@@ -67,6 +67,7 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
                     }
                     if (currentWeight > weight) {
                         double cal = currentCal - ((double) (currentWeight - weight) * 3500) / diff;
+
                         if (getArguments().getBoolean("MALE") && cal < 1200) {
                             Toast.makeText(this.getContext(), "Warning, your plan will result in unsafe low calorie intake, please select a different target", Toast.LENGTH_SHORT).show();
                         }
@@ -106,6 +107,7 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
         mSpTargetYear =  view.findViewById(R.id.spinner_targetYear);
         mSpTargetMonth =  view.findViewById(R.id.spinner_targetMonth);
         mTargetDay =  view.findViewById(R.id.spinner_targetDay);
+
         mButtonCalculate = view.findViewById(R.id.button_calculate);
         mButtonCalculate.setOnClickListener(this);
 
