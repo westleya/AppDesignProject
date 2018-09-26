@@ -434,7 +434,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
             // Restore image if there was one
             byte[] imageArray = savedInstanceState.getByteArray("PROFILE_PIC");
             if(imageArray != null){
-                mProfilePic = BitmapFactory.decodeByteArray(imageArray, 0, imageArray .length);
+                mProfilePic = BitmapFactory.decodeByteArray(imageArray, 0, imageArray.length);
                 m_ivProfilePic.setImageBitmap(mProfilePic);
             }
         }

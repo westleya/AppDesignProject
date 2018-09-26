@@ -2,6 +2,7 @@ package com.example.lifestyleapp;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,10 +11,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.ByteArrayOutputStream;
 
 public class ProfileFragment extends Fragment {
     private TextView mTvName, mTvAge, mTvCountry, mTvCity, mTvHeight, mTvWeight, mTvSex, mTvActivity;
+    private ImageView mIvPic;
+    private Bitmap mProfilePic;
     public ProfileFragment(){}
 
     @Nullable
@@ -31,6 +37,7 @@ public class ProfileFragment extends Fragment {
         mTvWeight = view.findViewById(R.id.tv_weight);
         mTvSex = view.findViewById(R.id.tv_sex);
         mTvActivity = view.findViewById(R.id.tv_activityLevel);
+        mIvPic = view.findViewById(R.id.iv_pic);
 
         mTvName.setText(getArguments().getString("NAME"));
         mTvAge.setText(getArguments().getString("AGE"));
@@ -41,6 +48,8 @@ public class ProfileFragment extends Fragment {
         mTvSex.setText(getArguments().getString("SEX"));
         mTvActivity.setText(getArguments().getString("ACTIVITY_LEVEL"));
 
+        mProfilePic = BitmapFactory.decodeByteArray(getArguments().getByteArray("PICTURE"), 0, getArguments().getByteArray("PICTURE").length);
+        mIvPic.setImageBitmap(mProfilePic);
         return view;
     }
 
@@ -56,6 +65,11 @@ public class ProfileFragment extends Fragment {
         String sex = mTvSex.getText().toString();
         String country = mTvCountry.getText().toString();
         String city = mTvCity.getText().toString();
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        mProfilePic.compress(Bitmap.CompressFormat.PNG, 100, os);
+        byte[] bArray = os.toByteArray();
+        outState.putByteArray("PROFILE_PIC", bArray);
 
         // Store all string and int values
         outState.putString("NAME", name);
@@ -94,6 +108,12 @@ public class ProfileFragment extends Fragment {
             mTvWeight.setText(savedInstanceState.getString("WEIGHT"));
             mTvSex.setText(savedInstanceState.getString("SEX"));
             mTvActivity.setText(savedInstanceState.getString("ACTIVITY_LEVEL"));
+
+            byte[] imageArray = savedInstanceState.getByteArray("PROFILE_PIC");
+            if(imageArray != null){
+                mProfilePic = BitmapFactory.decodeByteArray(imageArray, 0, imageArray.length);
+                mIvPic.setImageBitmap(mProfilePic);
+            }
         }
 
         super.onViewStateRestored(savedInstanceState);
