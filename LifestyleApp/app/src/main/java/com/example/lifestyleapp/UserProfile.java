@@ -52,7 +52,7 @@ public class UserProfile implements Serializable{
 
         Goal = goal;
         TargetWeight = target;
-        poundsPerWeek = lbperwk;
+        PoundsPerWeek = lbperwk;
     }
 
     // Getters

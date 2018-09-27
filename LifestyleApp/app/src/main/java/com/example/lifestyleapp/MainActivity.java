@@ -260,7 +260,6 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     @Override
     public void passDataEditGoal(int goalWeight, String goal, double poundsPerWeek ) {
 
-<<<<<<< HEAD
         // Set the new data to the user profile
         mUserProfile.setTargetWeight(goalWeight);
         mUserProfile.setPoundsPerWeek(poundsPerWeek);
@@ -280,23 +279,20 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
         ftrans.addToBackStack(null);
         ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goal_Fragment");
-=======
         // Now that the profile's been made, the menu fragment needs to be brought up.
-        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
         if(isTablet()) {
             mTabletFragment = new GoalsFragment();
-            mTabletFragment.setArguments(bundle);
+            mTabletFragment.setArguments(detailBundle);
             ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
                     "Edit_Goal_Fragment");
         }
         else {
             mFragment = new GoalsFragment();
-            mFragment.setArguments(bundle);
+            mFragment.setArguments(detailBundle);
             ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Goal_Fragment");
         }
 
         ftrans.addToBackStack(null);
->>>>>>> 3b0d98f427a341a67170e84558268d54e0b268e8
         ftrans.commit();
     }
 
@@ -314,24 +310,12 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
 
         // FIGURE OUT POSITION OF CLICK (WHICH MENU ITEM WAS SELECTED)
         if(position == 0){ // GOALS
-<<<<<<< HEAD
 
             detailBundle.putString("GOAL", mUserProfile.getGoal());
             detailBundle.putInt("CURRENT_WEIGHT", mUserProfile.getWeight());
             detailBundle.putInt("TARGET_WEIGHT", mUserProfile.getTargetWeight());
             detailBundle.putInt("BMI", FitnessUtils.calculateBMI(mUserProfile));
             detailBundle.putInt("TARGET_CALORIES", FitnessUtils.calculateExpectedCaloricIntake(mUserProfile));
-
-            mFragment = new GoalsFragment();
-            mFragment.setArguments(detailBundle);
-
-            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals_Fragment");
-=======
-            detailBundle.putString("GOAL", "No current Goal");
-            detailBundle.putInt("CURRENT_WEIGHT", 10);
-            detailBundle.putInt("TARGET_WEIGHT", 10);
-            detailBundle.putInt("BMI", 10);
-            detailBundle.putInt("TARGET_CALORIES", 100);
 
             if(isTablet()) {
                 mTabletFragment = new GoalsFragment();
@@ -344,7 +328,6 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
                 mFragment.setArguments(detailBundle);
                 ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals_Fragment");
             }
->>>>>>> 3b0d98f427a341a67170e84558268d54e0b268e8
         }
         else if(position == 1){ // WEATHER
             // Sanitize the location for querying the openWeather API
@@ -434,7 +417,6 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
 
         }
 
-
     };
 
 
@@ -484,28 +466,23 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
      */
     public void goToEditGoal(View view){
 
-<<<<<<< HEAD
         Bundle detailBundle = new Bundle();
         detailBundle.putInt("WEIGHT", mUserProfile.getWeight());
         detailBundle.putBoolean("MALE", mUserProfile.getGender());
 
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        mFragment = new EditGoalsFragment();
-        mFragment.setArguments(detailBundle);
-        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
-        ftrans.commit();
-=======
-        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+
         if(isTablet()) {
             mTabletFragment = new EditGoalsFragment();
+            mTabletFragment.setArguments(detailBundle);
             ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
                     "Edit_Goals_Fragment");
         }
         else {
             mFragment = new EditGoalsFragment();
+            mFragment.setArguments(detailBundle);
             ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Goals_Fragment");
         }
->>>>>>> 3b0d98f427a341a67170e84558268d54e0b268e8
         ftrans.addToBackStack(null);
         ftrans.commit();
     }
