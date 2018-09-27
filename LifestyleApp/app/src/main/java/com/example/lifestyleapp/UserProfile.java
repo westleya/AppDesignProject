@@ -19,7 +19,7 @@ public class UserProfile implements Serializable{
     private int TargetWeight; // in lbs
     private double PoundsPerWeek; // In lbs per week
 
-    // Constructor
+    // Constructor for getting data from EditProfile
     public UserProfile(String name, int age, int weight, int height, String activityLevel, boolean sex, String country,
                        String city){
         Name = name;
@@ -37,6 +37,22 @@ public class UserProfile implements Serializable{
         PoundsPerWeek = -1;
 
         setActivityLevel(activityLevel);
+    }
+    // Constructor for getting data from file. May not be necessary.
+    public UserProfile(String name, int age, int weight, int height, Double activityLevel, boolean sex, String country,
+                       String city, String goal, int target, double lbperwk){
+        Name = name;
+        Age = age;
+        City = city;
+        Country = country;
+        Height = height;
+        Weight = weight;
+        Gender = sex;
+        setActivityLevel(activityLevel);
+
+        Goal = goal;
+        TargetWeight = target;
+        poundsPerWeek = lbperwk;
     }
 
     // Getters

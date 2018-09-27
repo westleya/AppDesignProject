@@ -46,7 +46,7 @@ public class ProfileFragment extends Fragment {
         mTvSex.setText(GeneralUtils.sexToString(getArguments().getBoolean("SEX")));
         mTvActivity.setText(GeneralUtils.doubleToActivityLevel(getArguments().getDouble("ACTIVITY_LEVEL")));
 
-        mProfilePic = BitmapFactory.decodeByteArray(getArguments().getByteArray("PICTURE"), 0, getArguments().getByteArray("PICTURE").length);
+        mProfilePic = (Bitmap) getArguments().getParcelable("PICTURE");
         mIvPic.setImageBitmap(mProfilePic);
         return view;
     }
