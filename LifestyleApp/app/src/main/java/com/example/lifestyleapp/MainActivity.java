@@ -246,16 +246,24 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             // Save user's credentials to file
             saveProfileToFile();
             savePictureToFile();
+            FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
             if(isTablet()){
                 // In the case that the profile's just been made, the
                 // menu fragment needs to be brought up on the tablet.
-                FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
                 mFragment = new MasterFragment();
                 ftrans.replace(R.id.fl_frag_masterlist_container_tablet, mFragment, "Menu_Fragment");
                 ftrans.commit();
+                // Might as well take them directly to goal setup.
+                goToEditGoal(this.getCurrentFocus());
             }
-            // Might as well take them directly to goal setup.
-            goToEditGoal(this.getCurrentFocus());
+            else {
+                // Going immediately to goals isn't as intuitive on the phone.
+                // So, go to menu.
+                mFragment = new MasterFragment();
+                ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Menu_Fragment");
+                ftrans.commit();
+            }
+
         }
     }
 
