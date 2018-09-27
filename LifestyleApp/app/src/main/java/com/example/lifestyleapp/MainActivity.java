@@ -234,21 +234,29 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         // Create the UserProfile
         mUserProfile = new UserProfile(name, age, weight, height, activityLevel, sex, country, city);
 
-        // Save user's credentials to file
-        saveProfileToFile();
-        savePictureToFile();
-        // Now that the profile's been made, the menu fragment needs to be brought up.
-        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        mFragment = new MasterFragment();
-        if(isTablet()){
-            ftrans.replace(R.id.fl_frag_masterlist_container_tablet, mFragment, "Menu_Fragment");
+        // We're going to load different screens based on whether the profile's been made before.
+        File file = new File(getApplicationContext().getFilesDir(), fileName);
+        if(file.exists()) {
+            // Save user's credentials to file
+            saveProfileToFile();
+            savePictureToFile();
+            goToUserProfile(this.getCurrentFocus());
         }
         else {
-            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Menu_Fragment");
+            // Save user's credentials to file
+            saveProfileToFile();
+            savePictureToFile();
+            if(isTablet()){
+                // In the case that the profile's just been made, the
+                // menu fragment needs to be brought up on the tablet.
+                FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+                mFragment = new MasterFragment();
+                ftrans.replace(R.id.fl_frag_masterlist_container_tablet, mFragment, "Menu_Fragment");
+                ftrans.commit();
+            }
+            // Might as well take them directly to goal setup.
+            goToEditGoal(this.getCurrentFocus());
         }
-        ftrans.addToBackStack(null);
-        ftrans.commit();
-
     }
 
 
@@ -272,24 +280,17 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         detailBundle.putInt("BMI", FitnessUtils.calculateBMI(mUserProfile));
         detailBundle.putInt("TARGET_CALORIES", FitnessUtils.calculateExpectedCaloricIntake(mUserProfile));
 
-        // Set up the Goals Fragment
-        mFragment = new GoalsFragment();
-        mFragment.setArguments(detailBundle);
-
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        ftrans.addToBackStack(null);
-        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goal_Fragment");
-        // Now that the profile's been made, the menu fragment needs to be brought up.
         if(isTablet()) {
             mTabletFragment = new GoalsFragment();
             mTabletFragment.setArguments(detailBundle);
             ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
-                    "Edit_Goal_Fragment");
+                    "Goals_Fragment");
         }
         else {
             mFragment = new GoalsFragment();
             mFragment.setArguments(detailBundle);
-            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Goal_Fragment");
+            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals_Fragment");
         }
 
         ftrans.addToBackStack(null);
@@ -508,18 +509,18 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             detailBundle.putBoolean("SEX", mUserProfile.getGender());
             detailBundle.putDouble("ACTIVITY_LEVEL", mUserProfile.getActivityLevel());
             detailBundle.putParcelable("PICTURE", mProfilePicture );
-            //TODO: add profilepic
 
             if(isTablet()) {
                 mTabletFragment = new ProfileFragment();
                 mTabletFragment.setArguments(detailBundle);
                 ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
-                        "Edit_Profile_Fragment");
+                        "Profile_Fragment");
             }
             else {
                 mFragment = new ProfileFragment();
                 mFragment.setArguments(detailBundle);
-                ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
+                ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment,
+                        "Profile_Fragment");
             }
             ftrans.addToBackStack(null);
             ftrans.commit();
