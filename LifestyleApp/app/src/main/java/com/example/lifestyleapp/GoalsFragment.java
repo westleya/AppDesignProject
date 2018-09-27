@@ -50,8 +50,6 @@ public class GoalsFragment extends Fragment {
             mTvTargetCalorie.setText(Integer.toString(dailyCalorieTarget));
         }
 
-
-
         return view;
     }
 

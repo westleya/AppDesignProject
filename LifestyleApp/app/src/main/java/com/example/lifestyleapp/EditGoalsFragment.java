@@ -18,31 +18,42 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class EditGoalsFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
-//    private Spinner mSpGoals;
-//    private Spinner mSpActivity;
+
+    // Views
     private Spinner mSpTargetWeight;
     private Spinner mSpTargetYear;
     private Spinner mSpTargetMonth;
     private Spinner mTargetDay;
     private Button mButtonCalculate;
     private EditGoalsFragment.OnDataPass mDataPasser;
+
+    private int mCurrentWeight;
+
     @Override
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.button_calculate:{
-//                if (!mSpTargetWeight.isSelected() ||
-//                        !mSpTargetYear.isSelected() || !mSpTargetMonth.isSelected() || !mTargetDay.isSelected()) {
-//                    Toast.makeText(this.getContext(), "Please select all items.", Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
-//                String goal = mSpGoals.getSelectedItem().toString();
-//                String activity = mSpActivity.getSelectedItem().toString();
-                int weight = Integer.parseInt(mSpTargetWeight.getSelectedItem().toString());
+
+                // Get values from spinners
+                int goalWeight = Integer.parseInt(mSpTargetWeight.getSelectedItem().toString());
                 int year = Integer.parseInt(mSpTargetYear.getSelectedItem().toString());
                 int month = Integer.parseInt(mSpTargetMonth.getSelectedItem().toString());
                 int day = Integer.parseInt(mTargetDay.getSelectedItem().toString());
+
+                // Figure out the user's weight goal
+                String goal = "Maintain Weight";
+                double poundsToLose = mCurrentWeight - goalWeight;
+                double poundsPerWeek = 0; // Calculated further below if there's a change
+                if(goalWeight < mCurrentWeight){
+                    goal = "Lose Weight";
+                }
+                else if(goalWeight > mCurrentWeight) {
+                    goal = "Gain Weight";
+                }
+
                 boolean leap = false;
                 if (year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)) {
                     leap = true;
@@ -53,9 +64,11 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
                     Toast.makeText(this.getContext(), "Please select correct date.", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
                 String targetStr = day + "/" + month + "/" + year;
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
                 try {
+                    // Calculate the time difference between now and goal date
                     Date targetDate = sdf.parse(targetStr);
                     Date c = Calendar.getInstance().getTime();
                     sdf.format(c);
@@ -63,12 +76,17 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
 //                    int currentCal = getArguments().getInt("CAL");
                     int currentCal = 2000;
 //                    int currentWeight = getArguments().getInt("WEIGHT");
-                    int currentWeight = 50;
-                    if (Math.abs((double) (currentWeight - weight) / diff * 7) > 2) {
+
+                    // Calculate the number of weeks between now and goal
+                    long days = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+                    double weeks = days / 7.0;
+                    poundsPerWeek = -1 * poundsToLose / weeks;
+
+                    if (Math.abs((double) (mCurrentWeight - goalWeight) / diff * 7) > 2) {
                         Toast.makeText(this.getContext(), "Warning, you are planning to lose / gain more than 2 lbs per week, please select a different target", Toast.LENGTH_SHORT).show();
                     }
-                    if (currentWeight > weight) {
-                        double cal = currentCal - ((double) (currentWeight - weight) * 3500) / diff;
+                    if (mCurrentWeight > goalWeight) {
+                        double cal = currentCal - ((double) (mCurrentWeight - goalWeight) * 3500) / diff;
 
                         if (getArguments().getBoolean("MALE") && cal < 1200) {
                             Toast.makeText(this.getContext(), "Warning, your plan will result in unsafe low calorie intake, please select a different target", Toast.LENGTH_SHORT).show();
@@ -81,7 +99,7 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
                     e.printStackTrace();
                 }
 
-                mDataPasser.passDataEditGoal(weight, year, month, day);
+                mDataPasser.passDataEditGoal(goalWeight, goal, poundsPerWeek);
             }
         }
     }
@@ -102,9 +120,10 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
         //Inflate the detail view
         View view = inflater.inflate(R.layout.edit_goals, container, false);
 
+        // Get user details needed by this class
+        mCurrentWeight = getArguments().getInt("WEIGHT");
+
         //Get the text view
-//        mSpGoals = view.findViewById(R.id.spinner_goals);
-//        mSpActivity = view.findViewById(R.id.spinner_activityLevel);
         mSpTargetWeight =  view.findViewById(R.id.spinner_targetWeight);
         mSpTargetYear =  view.findViewById(R.id.spinner_targetYear);
         mSpTargetMonth =  view.findViewById(R.id.spinner_targetMonth);
@@ -112,16 +131,6 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
 
         mButtonCalculate = view.findViewById(R.id.button_calculate);
         mButtonCalculate.setOnClickListener(this);
-
-//        String[] goals = new String[] {"Gaining weight", "Losing weight"};
-//        ArrayAdapter<String> goalsAdapter = new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_spinner_item, goals);
-//        goalsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        mSpGoals.setAdapter(goalsAdapter);
-
-//        String[] activity = new String[] {"Active", "Sedentary", "Moderate"};
-//        ArrayAdapter<String> activityAdapter = new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_spinner_item, activity);
-//        activityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        mSpActivity.setAdapter(activityAdapter);
 
         String[] weight = new String[351];
         for (int i = 0; i < 351; ++i) {
@@ -165,7 +174,7 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
     }
 
     public interface OnDataPass{
-        void passDataEditGoal(int weight, int year, int month, int day);
+        void passDataEditGoal(int weight, String goal, double poundsPerWeek);
     }
 
     @Override

@@ -199,20 +199,33 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     }
 
 
+    /**
+     * Handles the incoming data from the EditGoalsFragment.
+     *
+     * @param goalWeight
+     */
     @Override
-    public void passDataEditGoal(int weight, int year, int month, int day) {
-        Bundle bundle = new Bundle();
-        bundle.putInt("WEIGHT", weight);
-        bundle.putInt("YEAR", year);
-        bundle.putInt("MONTH", month);
-        bundle.putInt("DAY", day);
+    public void passDataEditGoal(int goalWeight, String goal, double poundsPerWeek ) {
 
-        // Now that the profile's been made, the menu fragment needs to be brought up.
-        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+        // Set the new data to the user profile
+        mUserProfile.setTargetWeight(goalWeight);
+        mUserProfile.setPoundsPerWeek(poundsPerWeek);
+        mUserProfile.setGoal(goal);
+
+        Bundle detailBundle = new Bundle();
+        detailBundle.putString("GOAL", mUserProfile.getGoal());
+        detailBundle.putInt("CURRENT_WEIGHT", mUserProfile.getWeight());
+        detailBundle.putInt("TARGET_WEIGHT", mUserProfile.getTargetWeight());
+        detailBundle.putInt("BMI", FitnessUtils.calculateBMI(mUserProfile));
+        detailBundle.putInt("TARGET_CALORIES", FitnessUtils.calculateExpectedCaloricIntake(mUserProfile));
+
+        // Set up the Goals Fragment
         mFragment = new GoalsFragment();
-        mFragment.setArguments(bundle);
-        ftrans.addToBackStack("back");
-        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Goal_Fragment");
+        mFragment.setArguments(detailBundle);
+
+        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
+        ftrans.addToBackStack(null);
+        ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goal_Fragment");
         ftrans.commit();
     }
 
@@ -230,13 +243,14 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
 
         // FIGURE OUT POSITION OF CLICK (WHICH MENU ITEM WAS SELECTED)
         if(position == 0){ // GOALS
-            mFragment = new GoalsFragment();
-            detailBundle.putString("GOAL", "No current Goal");
-            detailBundle.putInt("CURRENT_WEIGHT", 10);
-            detailBundle.putInt("TARGET_WEIGHT", 10);
-            detailBundle.putInt("BMI", 10);
-            detailBundle.putInt("TARGET_CALORIES", 100);
 
+            detailBundle.putString("GOAL", mUserProfile.getGoal());
+            detailBundle.putInt("CURRENT_WEIGHT", mUserProfile.getWeight());
+            detailBundle.putInt("TARGET_WEIGHT", mUserProfile.getTargetWeight());
+            detailBundle.putInt("BMI", FitnessUtils.calculateBMI(mUserProfile));
+            detailBundle.putInt("TARGET_CALORIES", FitnessUtils.calculateExpectedCaloricIntake(mUserProfile));
+
+            mFragment = new GoalsFragment();
             mFragment.setArguments(detailBundle);
 
             ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals_Fragment");
@@ -342,6 +356,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
      * Handles a button click to go to the Edit Profile page
      */
     public void goToEditProfile(View view){
+
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
         mFragment = new EditProfileFragment();
         ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
@@ -353,8 +368,14 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
      * Handles a button click to go to the Edit Goal page
      */
     public void goToEditGoal(View view){
+
+        Bundle detailBundle = new Bundle();
+        detailBundle.putInt("WEIGHT", mUserProfile.getWeight());
+        detailBundle.putBoolean("MALE", mUserProfile.getGender());
+
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
         mFragment = new EditGoalsFragment();
+        mFragment.setArguments(detailBundle);
         ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Profile_Fragment");
         ftrans.commit();
         ftrans.addToBackStack(null);
