@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     private double longitude;
     private double latitude;
     private String mSearchFor = "hikes";
+    public static boolean debug = false;
 
     //Uniquely identify loader
     private static final int SEARCH_LOADER = 11;

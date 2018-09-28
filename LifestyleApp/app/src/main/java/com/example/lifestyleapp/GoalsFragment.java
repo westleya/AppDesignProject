@@ -34,6 +34,9 @@ public class GoalsFragment extends Fragment {
         int BMI = getArguments().getInt("BMI");
         int dailyCalorieTarget = getArguments().getInt("TARGET_CALORIES");
 
+        if (MainActivity.debug) {
+            assert(targetWeight == 60);
+        }
         // If user has not yet defined a goal, we need filler data
         if(goal.equals("")){
             mTvGoals.setText("No Goal Set");

@@ -73,6 +73,17 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
                     Date c = Calendar.getInstance().getTime();
                     sdf.format(c);
                     long diff = targetDate.getTime() - c.getTime();
+
+                    // test with invalid target date
+                    if (MainActivity.debug) {
+                        assert(diff < 0);
+                    }
+
+                    if (diff < 0) {
+                        Toast.makeText(this.getContext(), "please select a valid target date", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
 //                    int currentCal = getArguments().getInt("CAL");
                     int currentCal = 2000;
 //                    int currentWeight = getArguments().getInt("WEIGHT");
@@ -84,15 +95,18 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
 
                     if (Math.abs((double) (mCurrentWeight - goalWeight) / diff * 7) > 2) {
                         Toast.makeText(this.getContext(), "Warning, you are planning to lose / gain more than 2 lbs per week, please select a different target", Toast.LENGTH_SHORT).show();
+                        return;
                     }
                     if (mCurrentWeight > goalWeight) {
                         double cal = currentCal - ((double) (mCurrentWeight - goalWeight) * 3500) / diff;
 
                         if (getArguments().getBoolean("MALE") && cal < 1200) {
                             Toast.makeText(this.getContext(), "Warning, your plan will result in unsafe low calorie intake, please select a different target", Toast.LENGTH_SHORT).show();
+                            return;
                         }
                         if (!getArguments().getBoolean("MALE") && cal < 1000) {
                             Toast.makeText(this.getContext(), "Warning, your plan will result in unsafe low calorie intake, please select a different target", Toast.LENGTH_SHORT).show();
+                            return;
                         }
                     }
                 } catch (ParseException e) {

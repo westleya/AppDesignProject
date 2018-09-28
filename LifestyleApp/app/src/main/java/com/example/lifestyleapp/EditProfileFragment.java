@@ -215,7 +215,10 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
                     Toast.makeText(this.getContext(), "Please enter a name.", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
+                if (!mName.trim().contains("\\s")) {
+                    Toast.makeText(this.getContext(), "Please both first and last name.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 // Spinners come with a default value, so can't check for user input errors
                 mAge = Integer.parseInt(m_spAge.getSelectedItem().toString());
                 mWeight = Integer.parseInt((m_spWeight.getSelectedItem().toString()));
@@ -223,6 +226,9 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
                 mCity = m_spCity.getSelectedItem().toString();
                 mActivityLevel = m_spActivityLevel.getSelectedItem().toString();
 
+                if (MainActivity.debug) {
+                    assert(mAge == 13);
+                }
                 // GET HEIGHT DATA
                 String heightAsString = m_spHeight.getSelectedItem().toString();
                 // Replace all non number characters with a space

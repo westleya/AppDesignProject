@@ -37,6 +37,9 @@ public class ProfileFragment extends Fragment {
         mTvActivity = view.findViewById(R.id.tv_activityLevel);
         mIvPic = view.findViewById(R.id.iv_pic);
 
+        if (MainActivity.debug) {
+            getArguments().getString("NAME").equals("Dummy Name");
+        }
         mTvName.setText(getArguments().getString("NAME"));
         mTvAge.setText(getArguments().getString("AGE"));
         mTvCountry.setText(getArguments().getString("COUNTRY"));
