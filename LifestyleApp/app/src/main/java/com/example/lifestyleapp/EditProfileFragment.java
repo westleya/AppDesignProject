@@ -215,7 +215,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
                     Toast.makeText(this.getContext(), "Please enter a name.", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (!mName.trim().contains("\\s")) {
+                if (!mName.trim().contains(" ")) {
                     Toast.makeText(this.getContext(), "Please both first and last name.", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -260,7 +260,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
 
                 // IF WE MADE IT HERE, WE HAVE ALL THE DATA TO SEND TO THE MAIN ACTIVITY
                 // TO CREATE A PROFILE FOR THE CURRENT USER VIA THE CALLBACK
-                mDataPasser.passData(mName, mAge, mWeight, mHeight, mActivityLevel, sexBoolean, mCountry, mCity, mProfilePic);
+                mDataPasser.passData(mName.trim(), mAge, mWeight, mHeight, mActivityLevel, sexBoolean, mCountry, mCity, mProfilePic);
 
             } // End submit button case
             break;
