@@ -60,7 +60,7 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
                 }
                 int[] dates = new int[]{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
                 dates[1] += leap ? 1 : 0;
-                if (day > dates[month]) {
+                if (day > dates[month - 1]) {
                     Toast.makeText(this.getContext(), "Please select correct date.", Toast.LENGTH_SHORT).show();
                     return;
                 }
