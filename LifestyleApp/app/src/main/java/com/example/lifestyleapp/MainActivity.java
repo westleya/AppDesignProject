@@ -10,18 +10,15 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
-import android.view.Window;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -31,13 +28,14 @@ import java.io.ObjectOutputStream;
 public class MainActivity extends AppCompatActivity implements EditProfileFragment.OnDataPass,
         RCViewAdapter.DataPasser, EditGoalsFragment.OnDataPass {
 
-
+    private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private UserProfile mUserProfile;
     private String fileName = "user_profile.txt";
     private String pictureName = "thumbnail.jpg";
     private Fragment mFragment; // Sufficient for the phone
     private Fragment mTabletFragment; // Necessary for the two-pane nature of the tablet
     private Toolbar mToolBar;
+    private AppCompatImageView mPicture;
     private Bitmap mProfilePicture; // Bitmaps aren't serializable so the picture has to be kept separate from the profile info
     private LocationManager mLocMgr;
     private double longitude;
@@ -59,6 +57,9 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         // Find the toolbar view inside of the activity_layout
         mToolBar = findViewById(R.id.toolbar);
         mToolBar.setTitle("");
+        // Find the picture view inside the activity_layout
+        mPicture = findViewById(R.id.iv_toolbar_profile_pic);
+
         // Add the toolbar in as the actionbar
         setSupportActionBar(mToolBar);
 
@@ -71,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             if(file.exists()) {
                 readProfileFromFile();
                 readPictureFromFile();
+                mPicture.setImageBitmap(mProfilePicture);
                 if(isTablet()) {
                     // Set the Menu
                     mFragment = new MasterFragment();
@@ -103,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             if(file.exists()) { // The user is restarting the app and has a profile.
                 readProfileFromFile();
                 readPictureFromFile();
+                mPicture.setImageBitmap(mProfilePicture);
                 if(isTablet()) {
                     // Set the menu. The right pane can be left blank unless we decide otherwise aesthetically.
                     mFragment = new MasterFragment();
@@ -151,7 +154,6 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inPreferredConfig = Bitmap.Config.ARGB_8888;
             mProfilePicture = BitmapFactory.decodeFile(pictureName, options);
-
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -233,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
                          String city, Bitmap picture) {
 
         mProfilePicture = picture;
+        mPicture.setImageBitmap(mProfilePicture);
         // Create the UserProfile
         mUserProfile = new UserProfile(name, age, weight, height, activityLevel, sex, country, city);
 
@@ -374,7 +377,6 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     // If not possible, use the city and country provided.
     public void FindHikes() {
         mLocMgr = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        Uri queryUri;
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
@@ -387,23 +389,24 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
 
-
-            // Use the user's country and city to find hikes since no location is specified
-            queryUri = Uri.parse("geo:0,0?q=" + Uri.encode(mUserProfile.getCity() + ", " + mUserProfile.getCountry() +
-                    " " + mSearchFor));
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         } else {
+            Uri queryUri;
             // Update the longitude and latitude variables with the device's coordinates
             mLocMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
 
             // Construct the search for hikes from the device's coordinates
             queryUri = Uri.parse("geo:" + longitude + "," + latitude + "?q=" + mSearchFor);
-        }
-        // Implicit Intent to Maps App
-        Intent mapsIntent = new Intent(Intent.ACTION_VIEW, queryUri);
 
-        // If an activity exists for this intent start it
-        if (mapsIntent.resolveActivity(this.getPackageManager()) != null) {
-            this.startActivity(mapsIntent);
+            // Implicit Intent to Maps App
+            Intent mapsIntent = new Intent(Intent.ACTION_VIEW, queryUri);
+
+            // If an activity exists for this intent start it
+            if (mapsIntent.resolveActivity(this.getPackageManager()) != null) {
+                this.startActivity(mapsIntent);
+            }
         }
     }
     private final LocationListener locationListener = new LocationListener() {
@@ -430,6 +433,36 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
 
     };
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    FindHikes();
+                } else {
+
+                    // permission denied, boo!
+                    // Use the user's country and city to find hikes since no location is specified
+                    Uri queryUri = Uri.parse("geo:0,0?q=" + Uri.encode(mUserProfile.getCity() + ", " + mUserProfile.getCountry() +
+                            " " + mSearchFor));
+                    // Implicit Intent to Maps App
+                    Intent mapsIntent = new Intent(Intent.ACTION_VIEW, queryUri);
+
+                    // If an activity exists for this intent start it
+                    if (mapsIntent.resolveActivity(this.getPackageManager()) != null) {
+                        this.startActivity(mapsIntent);
+                    }
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request.
+        }
+    }
 
     /**
      * Handles when the logo/home button is clicked. Returns to the home menu

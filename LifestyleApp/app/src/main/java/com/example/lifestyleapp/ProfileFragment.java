@@ -1,7 +1,6 @@
 package com.example.lifestyleapp;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -67,10 +66,13 @@ public class ProfileFragment extends Fragment {
         String country = mTvCountry.getText().toString();
         String city = mTvCity.getText().toString();
 
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        mProfilePic.compress(Bitmap.CompressFormat.PNG, 100, os);
-        byte[] bArray = os.toByteArray();
-        outState.putByteArray("PROFILE_PIC", bArray);
+        if(mProfilePic != null) {
+            outState.putParcelable("PROFILE_PIC", mProfilePic);
+        }
+//        ByteArrayOutputStream os = new ByteArrayOutputStream();
+//        mProfilePic.compress(Bitmap.CompressFormat.PNG, 100, os);
+//        byte[] bArray = os.toByteArray();
+//        outState.putByteArray("PROFILE_PIC", bArray);
 
         // Store all string and int values
         outState.putString("NAME", name);
@@ -100,11 +102,14 @@ public class ProfileFragment extends Fragment {
             mTvSex.setText(savedInstanceState.getString("SEX"));
             mTvActivity.setText(savedInstanceState.getString("ACTIVITY_LEVEL"));
 
-            byte[] imageArray = savedInstanceState.getByteArray("PROFILE_PIC");
-            if(imageArray != null){
-                mProfilePic = BitmapFactory.decodeByteArray(imageArray, 0, imageArray.length);
-                mIvPic.setImageBitmap(mProfilePic);
+            if(savedInstanceState.containsKey("PROFILE_PIC")) {
+                mProfilePic= (Bitmap) savedInstanceState.getParcelable("PROFILE_PIC");
             }
+//            byte[] imageArray = savedInstanceState.getByteArray("PROFILE_PIC");
+//            if(imageArray != null){
+//                mProfilePic = BitmapFactory.decodeByteArray(imageArray, 0, imageArray.length);
+//                mIvPic.setImageBitmap(mProfilePic);
+//            }
         }
 
         super.onViewStateRestored(savedInstanceState);

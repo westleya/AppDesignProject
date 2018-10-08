@@ -3,7 +3,6 @@ package com.example.lifestyleapp;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
@@ -25,7 +24,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -387,10 +385,11 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
 
         // Store image if there is one
         if(mProfilePic != null){
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            mProfilePic.compress(Bitmap.CompressFormat.PNG, 100, os);
-            byte[] bArray = os.toByteArray();
-            outState.putByteArray("PROFILE_PIC", bArray);
+            outState.putParcelable("PROFILE_PIC", mProfilePic);
+//            ByteArrayOutputStream os = new ByteArrayOutputStream();
+//            mProfilePic.compress(Bitmap.CompressFormat.PNG, 100, os);
+//            byte[] bArray = os.toByteArray();
+//            outState.putByteArray("PROFILE_PIC", bArray);
         }
 
         //Save the view hierarchy
@@ -422,15 +421,18 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
             }
             else if(sexValue == 1){
                 m_rbMale.setChecked(true);
-                m_rbFemale.setChecked(true);
+                m_rbFemale.setChecked(false);
             }
 
             // Restore image if there was one
-            byte[] imageArray = savedInstanceState.getByteArray("PROFILE_PIC");
-            if(imageArray != null){
-                mProfilePic = BitmapFactory.decodeByteArray(imageArray, 0, imageArray.length);
-                m_ivProfilePic.setImageBitmap(mProfilePic);
+            if(savedInstanceState.containsKey("PROFILE_PIC")) {
+                mProfilePic= (Bitmap) savedInstanceState.getParcelable("PROFILE_PIC");
             }
+//            byte[] imageArray = savedInstanceState.getByteArray("PROFILE_PIC");
+//            if(imageArray != null){
+//                mProfilePic = BitmapFactory.decodeByteArray(imageArray, 0, imageArray.length);
+//                m_ivProfilePic.setImageBitmap(mProfilePic);
+//            }
         }
 
         super.onViewStateRestored(savedInstanceState);

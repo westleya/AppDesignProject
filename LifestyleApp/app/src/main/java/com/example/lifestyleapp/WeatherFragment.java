@@ -129,7 +129,7 @@ public class WeatherFragment extends Fragment implements LoaderManager.LoaderCal
                 // location, weather (temperature), wind, humidity, pressure;
                 mTvWeather.setText(mWeatherData.getCurrentCondition().getDescription() + ", " +
                         Integer.toString((int) (9 * ((mWeatherData.getTemperature().getTemp() -
-                                273) / 5) + 32)) + " F");
+                                273) / 5) + 32)) + " \u00b0F");
                 mTvWind.setText(Double.toString(mWeatherData.getWind().getSpeed()) + " m/s");
                 mTvHumidity.setText(Double.toString(mWeatherData.getCurrentCondition().getHumidity()) + " %");
                 mTvPressure.setText(Double.toString(mWeatherData.getCurrentCondition().getPressure()) + " hPa");
