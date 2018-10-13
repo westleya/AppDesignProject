@@ -1,5 +1,7 @@
 package com.example.lifestyleapp;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -44,14 +46,49 @@ public class WeatherFragment extends Fragment implements LoaderManager.LoaderCal
 
         mTvLocation.setText(getArguments().getString("location").replace('&', ' '));
 
+        /**
+         New for Part 2. Gets the same instance of the WeatherViewModel as was created in Main.
+         */
+        WeatherViewModel mWeatherViewModel = ViewModelProviders.of(getActivity()).get(WeatherViewModel.class);
+        /**
+         The rest of the WeatherViewModel class has to be implemented for this to actually work.
+         Currently it's just a shell class.
+         */
+        mWeatherViewModel.getData().observe(this, weatherObserver);
+
+        /**
+         The old implementation that will be deleted once we get ViewModels working
+         */
         LoadWeatherData(getArguments().getString("location"));
 
         return view;
     }
 
+    /**
+     https://developer.android.com/topic/libraries/architecture/viewmodel#sharing used the
+     another format to observe, while the examples from class created this separate 'observer'
+     method. They seem to be comparable to me, but I couldn't get the web's format to work.
+     */
+    // Create an observer that watches the LiveData<WeatherData> object
+    final Observer<WeatherData> weatherObserver = new Observer<WeatherData>() {
+        @Override
+        public void onChanged(@Nullable WeatherData weatherData) {
+            // Update the UI if the data variable changes
+            if(mWeatherData != null) {
+                // location, weather (temperature), wind, humidity, pressure;
+                // Temperature is sent from openWeatherAPI in Kelvin. We're only reporting it
+                // in Fahrenheit. Therefore, it needs to be converted.
+                mTvWeather.setText(mWeatherData.getCurrentCondition().getDescription() + ", " +
+                        Integer.toString((int) (9 * ((mWeatherData.getTemperature().getTemp() -
+                                273) / 5) + 32)) + " \u00b0F");
+                mTvWind.setText(Double.toString(mWeatherData.getWind().getSpeed()) + " m/s");
+                mTvHumidity.setText(Double.toString(mWeatherData.getCurrentCondition().getHumidity()) + " %");
+                mTvPressure.setText(Double.toString(mWeatherData.getCurrentCondition().getPressure()) + " hPa");
+            }
+        }
+    };
 
     ////////GET WEATHER DATA/////////////
-
 
     public void LoadWeatherData(String location) {
 
@@ -127,6 +164,8 @@ public class WeatherFragment extends Fragment implements LoaderManager.LoaderCal
             if(mWeatherData != null) {
 
                 // location, weather (temperature), wind, humidity, pressure;
+                // Temperature is sent from openWeatherAPI in Kelvin. We're only reporting it
+                // in Fahrenheit. Therefore, it needs to be converted.
                 mTvWeather.setText(mWeatherData.getCurrentCondition().getDescription() + ", " +
                         Integer.toString((int) (9 * ((mWeatherData.getTemperature().getTemp() -
                                 273) / 5) + 32)) + " \u00b0F");

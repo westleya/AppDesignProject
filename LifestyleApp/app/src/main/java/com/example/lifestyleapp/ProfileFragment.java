@@ -1,5 +1,7 @@
 package com.example.lifestyleapp;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,8 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.io.ByteArrayOutputStream;
 
 public class ProfileFragment extends Fragment {
     private TextView mTvName, mTvAge, mTvCountry, mTvCity, mTvHeight, mTvWeight, mTvSex, mTvActivity;
@@ -39,6 +39,20 @@ public class ProfileFragment extends Fragment {
         if (MainActivity.debug) {
             getArguments().getString("NAME").equals("Dummy Name");
         }
+        /**
+         New for Part 2. Gets the same instance of the ProfileViewModel as was created in Main.
+         */
+        ProfileViewModel mProfileViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
+
+        /**
+         The rest of the ProfileViewModel class has to be implemented for this to actually work.
+         Currently it's just a shell class.
+         */
+        mProfileViewModel.getData().observe(this, profileObserver);
+
+        /**
+         The old implementation that will be deleted once we get ViewModels working
+         */
         mTvName.setText(getArguments().getString("NAME"));
         mTvAge.setText(getArguments().getString("AGE"));
         mTvCountry.setText(getArguments().getString("COUNTRY"));
@@ -52,6 +66,31 @@ public class ProfileFragment extends Fragment {
         mIvPic.setImageBitmap(mProfilePic);
         return view;
     }
+
+    /**
+     https://developer.android.com/topic/libraries/architecture/viewmodel#sharing used the
+     another format to observe, while the examples from class created this separate 'observer'
+     method. They seem to be comparable to me, but I couldn't get the web's format to work.
+     */
+    // Create an observer that watches the LiveData<UserProfile> object.
+    final Observer<UserProfile> profileObserver = new Observer<UserProfile>() {
+        @Override
+        public void onChanged(@Nullable UserProfile UserProfile) {
+            // Update the UI if the data variable changes
+            // TODO: Find out if this means that we can store the profile picture as part of the user profile.
+            if(UserProfile != null) {
+                mTvName.setText(UserProfile.getName());
+                mTvAge.setText(UserProfile.getAge());
+                mTvCountry.setText(UserProfile.getCountry());
+                mTvCity.setText(UserProfile.getCity());
+                mTvHeight.setText(GeneralUtils.inchesToHeight(UserProfile.getHeight()));
+                mTvWeight.setText(Integer.toString(UserProfile.getWeight()));
+                mTvSex.setText(GeneralUtils.sexToString(UserProfile.getGender()));
+                mTvActivity.setText(GeneralUtils.doubleToActivityLevel(UserProfile.getActivityLevel()));
+            }
+        }
+
+    };
 
 
     @Override

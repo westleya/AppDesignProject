@@ -1,6 +1,7 @@
 package com.example.lifestyleapp;
 
 import android.Manifest;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,11 +11,11 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -41,7 +42,10 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     private double longitude;
     private double latitude;
     private String mSearchFor = "hikes";
+    private WeatherViewModel mWeatherViewModel;
+    private ProfileViewModel mProfileViewModel;
     public static boolean debug = false;
+
 
     //Uniquely identify loader
     private static final int SEARCH_LOADER = 11;
@@ -51,17 +55,22 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Start a transaction for filling the screen with
-        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-
         // Find the toolbar view inside of the activity_layout
         mToolBar = findViewById(R.id.toolbar);
         mToolBar.setTitle("");
         // Find the picture view inside the activity_layout
         mPicture = findViewById(R.id.iv_toolbar_profile_pic);
-
         // Add the toolbar in as the actionbar
         setSupportActionBar(mToolBar);
+
+        /**
+         Create View Models. New for part 2.
+         */
+        mWeatherViewModel = ViewModelProviders.of(this).get(WeatherViewModel.class);
+        mProfileViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
+
+        // Start a transaction for filling the screen with
+        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
 
         // Check if there's a saved instance state. If there is, then restore the fragment
         // that was active. Check if there's a saved file. If there is a file, bring up
@@ -377,22 +386,17 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     // If not possible, use the city and country provided.
     public void FindHikes() {
         mLocMgr = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        // Check for GPS permissions
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
                         PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-
+            // Ask for permission if we don't have it already.
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        } else {
+
+        } else { // We have permission. Find nearby hikes.
             Uri queryUri;
             // Update the longitude and latitude variables with the device's coordinates
             mLocMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
