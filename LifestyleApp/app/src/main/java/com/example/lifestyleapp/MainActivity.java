@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             }
         }
         else {
-            if(file.exists()) { // The user is restarting the app and has a profile.
+            if(mProfileViewModel.getNumberOfProfilesInDatabase() > 0) { // The user is restarting the app and has a profile.
                 readProfileFromFile();
                 readPictureFromFile();
                 mPicture.setImageBitmap(mProfilePicture);

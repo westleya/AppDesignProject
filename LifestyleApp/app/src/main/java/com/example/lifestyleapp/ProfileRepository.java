@@ -29,11 +29,6 @@ public class ProfileRepository {
         return mUserProfile;
     }
 
-    // Gets the number of rows in the table
-    public int getNumberOfProfilesInDatabase(){
-        return mProfileDao.getNumberOfProfilesInDatabase();
-    }
-
     // Wrapper function for the insert() method
     public void insert(UserProfile profile){
         new insertAsyncTask(mProfileDao).execute(profile);
@@ -58,5 +53,35 @@ public class ProfileRepository {
             mAsyncTaskDao.insert(params[0]);
             return null;
         }
+    }
+
+    // Gets the number of rows in the table
+    public int getNumberOfProfilesInDatabase(){
+        rowsInDatabaseTask task = new rowsInDatabaseTask(mProfileDao);
+        task.execute();
+        int rowsInDatabase = task.getResult();
+        return rowsInDatabase;
+    }
+
+    // For getting the number of rows/entries in the database
+    private static class rowsInDatabaseTask extends AsyncTask<Void, Void, Void> {
+
+        private ProfileDao mAsyncTaskDao;
+        private int result;
+
+        rowsInDatabaseTask(ProfileDao dao){
+            mAsyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            result =  mAsyncTaskDao.getNumberOfProfilesInDatabase();
+            return null;
+        }
+
+        public int getResult(){
+            return result;
+        }
+
     }
 }
