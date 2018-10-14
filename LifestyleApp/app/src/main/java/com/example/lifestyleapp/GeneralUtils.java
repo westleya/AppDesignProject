@@ -30,18 +30,32 @@ public class GeneralUtils {
         return feet + "\' " + inches + "\"";
     }
 
-    public static String doubleToActivityLevel(double level){
+
+    public static String convertActivityLevel(double level){
         if(level == 1.53){
             return "Sedentary";
         }
-        else if(level == 1.76){
+        else if (level == 1.76){
             return "Moderate";
         }
-        else if(level == 2.25){
+        else if (level == 2.25){
             return "Active";
         }
-
         return "Unknown Activity Level";
     }
+
+    public static double convertActivityLevel(String level){
+        if(level.equals("Sedentary")){
+            return 1.53;
+        }
+        else if (level.equals("Moderate")){
+            return 1.76;
+        }
+        else if (level.equals("Active")){
+            return 2.25;
+        }
+        return -1;
+    }
+    
 
 }

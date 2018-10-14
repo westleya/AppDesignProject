@@ -29,20 +29,20 @@ public class FitnessUtils {
         double BMR = ((10 * profile.getWeight() * kgPerlb) +
                 (6.25 * profile.getHeight() * cmPerIn) - (5 * profile.getAge()));
 
-        if(profile.getActivityLevel() > 0.1){ // doubles are initialized to 0.0
+        if(GeneralUtils.convertActivityLevel(profile.getActivityLevel()) > 0.1){ // doubles are initialized to 0.0
             // Presumes gender binary Male=true, Female=false.
             // Men have a slightly higher standard BMR than women.
-            if(profile.getGender()) {
+            if(profile.getSex()) {
                 BMR += 5;
-                BMR *= profile.getActivityLevel();
+                BMR *= GeneralUtils.convertActivityLevel(profile.getActivityLevel());
             }
             else {
                 BMR -= 161;
-                BMR *= profile.getActivityLevel();
+                BMR *= GeneralUtils.convertActivityLevel(profile.getActivityLevel());
             }
         }
         else {
-            if(profile.getGender()) {
+            if(profile.getSex()) {
                 BMR += 5;
             }
             else {

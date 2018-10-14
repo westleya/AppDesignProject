@@ -516,7 +516,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
 
         Bundle detailBundle = new Bundle();
         detailBundle.putInt("WEIGHT", mUserProfile.getWeight());
-        detailBundle.putBoolean("MALE", mUserProfile.getGender());
+        detailBundle.putBoolean("MALE", mUserProfile.getSex());
 
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
 
@@ -545,27 +545,14 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         File file = new File(getApplicationContext().getFilesDir(), fileName);
         if(file.exists()) {
             FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-            Bundle detailBundle = new Bundle();
-
-            detailBundle.putString("NAME", mUserProfile.getName());
-            detailBundle.putString("AGE", Integer.toString(mUserProfile.getAge()));
-            detailBundle.putString("COUNTRY", mUserProfile.getCountry());
-            detailBundle.putString("CITY", mUserProfile.getCity());
-            detailBundle.putInt("HEIGHT", mUserProfile.getHeight());
-            detailBundle.putString("WEIGHT", Integer.toString(mUserProfile.getWeight()));
-            detailBundle.putBoolean("SEX", mUserProfile.getGender());
-            detailBundle.putDouble("ACTIVITY_LEVEL", mUserProfile.getActivityLevel());
-            detailBundle.putParcelable("PICTURE", mProfilePicture );
 
             if(isTablet()) {
                 mTabletFragment = new ProfileFragment();
-                mTabletFragment.setArguments(detailBundle);
                 ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
                         "Profile_Fragment");
             }
             else {
                 mFragment = new ProfileFragment();
-                mFragment.setArguments(detailBundle);
                 ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment,
                         "Profile_Fragment");
             }

@@ -1,96 +1,130 @@
 package com.example.lifestyleapp;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
+
 import java.io.Serializable;
 
+@Entity(tableName = "profile_data_table") // Needed for Room database
 public class UserProfile implements Serializable{
 
+    // Because our app only supports one user right now, just use custom, constant key
+    @PrimaryKey
+    @NonNull
+    @ColumnInfo(name = "id")
+    private int id;
+
     // User Stats Data
-    private String Name;
-    private int Age;
-    private String City;
-    private String Country;
-    private int Height; // in inches
-    private int Weight; // in lbs
-    private boolean Gender; // M=true, F=false
-    private double ActivityLevel; // Sedentary (1.53), Moderate (1.76), Active (2.25)
+    @NonNull
+    @ColumnInfo(name = "name")
+    private String name;
+    @NonNull
+    @ColumnInfo(name = "age")
+    private int age;
+    @NonNull
+    @ColumnInfo(name = "city")
+    private String city;
+    @NonNull
+    @ColumnInfo(name = "country")
+    private String country;
+    @NonNull
+    @ColumnInfo(name = "height")
+    private int height; // in inches
+    @NonNull
+    @ColumnInfo(name = "weight")
+    private int weight; // in lbs
+    @NonNull
+    @ColumnInfo(name = "gender")
+    private boolean sex; // M=true, F=false
+    @NonNull
+    @ColumnInfo(name = "activityLevel")
+    private String activityLevel; // Sedentary (1.53), Moderate (1.76), Active (2.25)
 
     // User Goal Related Data
-    private String Goal; // Lose, maintain, or gain weight
-    private int TargetWeight; // in lbs
-    private double PoundsPerWeek; // In lbs per week
+    @NonNull
+    @ColumnInfo(name = "goal")
+    private String goal; // Lose, maintain, or gain weight
+    @NonNull
+    @ColumnInfo(name = "targetWeight")
+    private int targetWeight; // in lbs
+    @NonNull
+    @ColumnInfo(name = "poundsPerWeek")
+    private double poundsPerWeek; // In lbs per week
 
     // Constructor for getting data from EditProfile
     public UserProfile(String name, int age, int weight, int height, String activityLevel, boolean sex, String country,
                        String city){
-        Name = name;
-        Age = age;
-        City = city;
-        Country = country;
-        Height = height;
-        Weight = weight;
-        Gender = sex;
+
+        id = 1;
+
+        this.name = name;
+        this.age = age;
+        this.city = city;
+        this.country = country;
+        this.height = height;
+        this.weight = weight;
+        this.sex = sex;
+        this.activityLevel = activityLevel;
 
         // Set these values later once the user has defined a health/fitness goal.
         // Will be initially set to negative values to denote that no gaol has been defined
-        Goal = "";
-        TargetWeight = -1;
-        PoundsPerWeek = -1;
+        goal = "";
+        targetWeight = -1;
+        poundsPerWeek = -1;
 
-        setActivityLevel(activityLevel);
     }
+
+
     // Constructor for getting data from file. May not be necessary.
+    @Ignore
     public UserProfile(String name, int age, int weight, int height, Double activityLevel, boolean sex, String country,
                        String city, String goal, int target, double lbperwk){
-        Name = name;
-        Age = age;
-        City = city;
-        Country = country;
-        Height = height;
-        Weight = weight;
-        Gender = sex;
-        setActivityLevel(activityLevel);
 
-        Goal = goal;
-        TargetWeight = target;
-        PoundsPerWeek = lbperwk;
+        id = 1;
+
+        this.name = name;
+        this.age = age;
+        this.city = city;
+        this.country = country;
+        this.height = height;
+        this.weight = weight;
+        this.sex = sex;
+        this.activityLevel = GeneralUtils.convertActivityLevel(activityLevel);
+
+        goal = goal;
+        targetWeight = target;
+        poundsPerWeek = lbperwk;
     }
 
     // Getters
-    public double getActivityLevel() { return ActivityLevel; }
-    public double getPoundsPerWeek() { return PoundsPerWeek; }
-    public int getAge() { return Age; }
-    public int getHeight() { return Height; }
-    public int getWeight() { return Weight; }
-    public int getTargetWeight(){
-        return TargetWeight;
-    }
-    public String getCity() { return City; }
-    public String getCountry() { return Country; }
-    public String getName() { return Name; }
-    public boolean getGender() { return Gender;}
-    public String getGoal(){ return Goal; }
+    public int getId() { return id; }
+    public String getActivityLevel() { return activityLevel; }
+    public double getPoundsPerWeek() { return poundsPerWeek; }
+    public int getAge() { return age; }
+    public int getHeight() { return height; }
+    public int getWeight() { return weight; }
+    public int getTargetWeight(){return targetWeight; }
+    public String getCity() { return city; }
+    public String getCountry() { return country; }
+    public String getName() { return name; }
+    public boolean getSex() { return sex;}
+    public String getGoal(){ return goal; }
 
     // Setters
-    public void setTargetWeight(int weight){ TargetWeight = weight; }
-    public void setPoundsPerWeek(double poundsPerWeek) { PoundsPerWeek = poundsPerWeek; }
-    public void setGoal(String goal) { Goal = goal; }
-    public void setActivityLevel(double activityLevel) {
-        ActivityLevel = activityLevel;
-    }
-
-    // Activity level isn't as simple as the other setters.
-    // Since its categories are descriptive and not numerical
-    // it can't be directly set from the user's input.
-    public void setActivityLevel(String activityLevel) {
-        if(activityLevel == "Sedentary") {
-            ActivityLevel = 1.53;
-        }
-        else if (activityLevel == "Moderate") {
-            ActivityLevel = 1.76;
-        }
-        else if (activityLevel == "Active") {
-            ActivityLevel = 2.25;
-        }
-    }
+    public void setId(int id ) {this.id = id; }
+    public void setName(String name) {this.name = name; }
+    public void setAge(int age) {this.age = age; }
+    public void setCity(String city) {this.city = city; }
+    public void setCountry(String country) {this.country = country; }
+    public void setHeight(int height) {this.height = height; }
+    public void setWeight(int weight) {this.weight = weight; }
+    public void setSex(boolean gender) {this.sex = gender; }
+    public void setGoal(String goal) { this.goal = goal; }
+    public void setTargetWeight(int weight){ targetWeight = weight; }
+    public void setPoundsPerWeek(double poundsPerWeek) { this.poundsPerWeek = poundsPerWeek; }
+    public void setActivityLevel(String activityLevel) { this.activityLevel = activityLevel; }
 
 }

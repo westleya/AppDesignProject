@@ -36,34 +36,29 @@ public class ProfileFragment extends Fragment {
         mTvActivity = view.findViewById(R.id.tv_activityLevel);
         mIvPic = view.findViewById(R.id.iv_pic);
 
-        if (MainActivity.debug) {
-            getArguments().getString("NAME").equals("Dummy Name");
-        }
         /**
          New for Part 2. Gets the same instance of the ProfileViewModel as was created in Main.
          */
-        ProfileViewModel mProfileViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
+        // Changed "this" to "getActivity()" - not sure which is correct right now
+        ProfileViewModel profileViewModel = ViewModelProviders.of(getActivity()).get(ProfileViewModel.class);
+        profileViewModel.getProfile().observe(this, profileObserver);
 
-        /**
-         The rest of the ProfileViewModel class has to be implemented for this to actually work.
-         Currently it's just a shell class.
-         */
-        mProfileViewModel.getData().observe(this, profileObserver);
+        // Set the current profile (this helps handle the back button. Without this it goes
+        // to default text that's unrepresentative of any profile).
+        UserProfile profile = profileViewModel.getProfile().getValue();
+        if(profile != null){
+            mTvName.setText(profile.getName());
+            mTvAge.setText(Integer.toString(profile.getAge()));
+            mTvCountry.setText(profile.getCountry());
+            mTvCity.setText(profile.getCity());
+            mTvHeight.setText(GeneralUtils.inchesToHeight(profile.getHeight()));
+            mTvWeight.setText(Integer.toString(profile.getWeight()));
+            mTvSex.setText(GeneralUtils.sexToString(profile.getSex()));
+            mTvActivity.setText(profile.getActivityLevel());
+        }
 
-        /**
-         The old implementation that will be deleted once we get ViewModels working
-         */
-        mTvName.setText(getArguments().getString("NAME"));
-        mTvAge.setText(getArguments().getString("AGE"));
-        mTvCountry.setText(getArguments().getString("COUNTRY"));
-        mTvCity.setText(getArguments().getString("CITY"));
-        mTvHeight.setText(GeneralUtils.inchesToHeight(getArguments().getInt("HEIGHT")));
-        mTvWeight.setText(getArguments().getString("WEIGHT"));
-        mTvSex.setText(GeneralUtils.sexToString(getArguments().getBoolean("SEX")));
-        mTvActivity.setText(GeneralUtils.doubleToActivityLevel(getArguments().getDouble("ACTIVITY_LEVEL")));
 
-        mProfilePic = (Bitmap) getArguments().getParcelable("PICTURE");
-        mIvPic.setImageBitmap(mProfilePic);
+
         return view;
     }
 
@@ -75,18 +70,18 @@ public class ProfileFragment extends Fragment {
     // Create an observer that watches the LiveData<UserProfile> object.
     final Observer<UserProfile> profileObserver = new Observer<UserProfile>() {
         @Override
-        public void onChanged(@Nullable UserProfile UserProfile) {
+        public void onChanged(@Nullable UserProfile profile) {
             // Update the UI if the data variable changes
             // TODO: Find out if this means that we can store the profile picture as part of the user profile.
-            if(UserProfile != null) {
-                mTvName.setText(UserProfile.getName());
-                mTvAge.setText(UserProfile.getAge());
-                mTvCountry.setText(UserProfile.getCountry());
-                mTvCity.setText(UserProfile.getCity());
-                mTvHeight.setText(GeneralUtils.inchesToHeight(UserProfile.getHeight()));
-                mTvWeight.setText(Integer.toString(UserProfile.getWeight()));
-                mTvSex.setText(GeneralUtils.sexToString(UserProfile.getGender()));
-                mTvActivity.setText(GeneralUtils.doubleToActivityLevel(UserProfile.getActivityLevel()));
+            if(profile != null) {
+                mTvName.setText(profile.getName());
+                mTvAge.setText(Integer.toString(profile.getAge()));
+                mTvCountry.setText(profile.getCountry());
+                mTvCity.setText(profile.getCity());
+                mTvHeight.setText(GeneralUtils.inchesToHeight(profile.getHeight()));
+                mTvWeight.setText(Integer.toString(profile.getWeight()));
+                mTvSex.setText(GeneralUtils.sexToString(profile.getSex()));
+                mTvActivity.setText(profile.getActivityLevel());
             }
         }
 

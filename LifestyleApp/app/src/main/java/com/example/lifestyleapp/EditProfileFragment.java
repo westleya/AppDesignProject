@@ -1,5 +1,6 @@
 package com.example.lifestyleapp;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -72,6 +73,8 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     // Callback for getting data to Activity
     private OnDataPass mDataPasser;
 
+    ProfileViewModel mProfileViewModel;
+
     /**
      * Required empty constructor
      */
@@ -120,6 +123,8 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
 
         // FILL THE SPINNERS WITH DATA
         setSpinners();
+
+        mProfileViewModel = ViewModelProviders.of(getActivity()).get(ProfileViewModel.class);
 
         return view;
     }
@@ -255,6 +260,12 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
                     Toast.makeText(this.getContext(), "Please create a profile picture.", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                // SAVES THIS UPDATE TO THE DATABASE
+                UserProfile profile = new UserProfile(mName.trim(), mAge, mWeight, mHeight, mActivityLevel, sexBoolean,
+                        mCountry, mCity);
+                mProfileViewModel.update(profile);
+
 
                 // IF WE MADE IT HERE, WE HAVE ALL THE DATA TO SEND TO THE MAIN ACTIVITY
                 // TO CREATE A PROFILE FOR THE CURRENT USER VIA THE CALLBACK
