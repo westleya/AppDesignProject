@@ -1,5 +1,10 @@
 package com.example.lifestyleapp;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
+import java.io.ByteArrayOutputStream;
+
 /**
  * Class that contains general utility functions
  */
@@ -55,6 +60,16 @@ public class GeneralUtils {
             return 2.25;
         }
         return -1;
+    }
+
+    public static byte[] convertImage(Bitmap image){
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
+    }
+
+    public static Bitmap convertImage(byte[] image){
+        return BitmapFactory.decodeByteArray(image, 0, image.length);
     }
     
 

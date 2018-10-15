@@ -31,7 +31,7 @@ public class WeatherRepository {
         new AsyncTask<String,Void,String>(){
             @Override
             protected String doInBackground(String... strings) {
-                String location = strings[0];
+                 String location = strings[0];
                 URL weatherDataURL = null;
                 String retrievedJsonData = null;
                 if(location!=null) {

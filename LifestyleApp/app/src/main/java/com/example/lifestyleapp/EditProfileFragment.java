@@ -25,6 +25,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -263,9 +264,8 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
 
                 // SAVES THIS UPDATE TO THE DATABASE
                 UserProfile profile = new UserProfile(mName.trim(), mAge, mWeight, mHeight, mActivityLevel, sexBoolean,
-                        mCountry, mCity);
+                        mCountry, mCity, GeneralUtils.convertImage(mProfilePic));
                 mProfileViewModel.update(profile);
-
 
                 // IF WE MADE IT HERE, WE HAVE ALL THE DATA TO SEND TO THE MAIN ACTIVITY
                 // TO CREATE A PROFILE FOR THE CURRENT USER VIA THE CALLBACK

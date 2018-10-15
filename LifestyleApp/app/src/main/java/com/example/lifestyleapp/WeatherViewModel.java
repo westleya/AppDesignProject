@@ -15,6 +15,7 @@ public class WeatherViewModel extends AndroidViewModel {
         mWeatherRepository = new WeatherRepository(application);
         jsonData = mWeatherRepository.getData();
     }
+
     public void setLocation(String location){
         mWeatherRepository.setLocation(location);
     }

@@ -57,8 +57,9 @@ public abstract class ProfileRoomDatabase extends RoomDatabase{
         protected Void doInBackground(final Void... params) {
             // mDao.deleteAll();
 
-            UserProfile profile = new UserProfile("Doug Test", 32, 190, 72, "Sedentary", true, "United States", "Salt Lake City");
-            mDao.insert(profile);
+            // Insert a profile
+            //UserProfile profile = new UserProfile("Doug Test", 32, 190, 72, "Sedentary", true, "United States", "Salt Lake City");
+            //mDao.insert(profile);
 
             return null;
         }

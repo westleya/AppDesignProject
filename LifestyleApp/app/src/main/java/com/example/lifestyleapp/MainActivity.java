@@ -1,6 +1,7 @@
 package com.example.lifestyleapp;
 
 import android.Manifest;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -21,9 +23,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class MainActivity extends AppCompatActivity implements EditProfileFragment.OnDataPass,
@@ -32,12 +32,10 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private UserProfile mUserProfile;
     private String fileName = "user_profile.txt";
-    private String pictureName = "thumbnail.jpg";
     private Fragment mFragment; // Sufficient for the phone
     private Fragment mTabletFragment; // Necessary for the two-pane nature of the tablet
     private Toolbar mToolBar;
-    private AppCompatImageView mPicture;
-    private Bitmap mProfilePicture; // Bitmaps aren't serializable so the picture has to be kept separate from the profile info
+    private AppCompatImageView mToolBarPic;
     private LocationManager mLocMgr;
     private double longitude;
     private double latitude;
@@ -59,15 +57,19 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         mToolBar = findViewById(R.id.toolbar);
         mToolBar.setTitle("");
         // Find the picture view inside the activity_layout
-        mPicture = findViewById(R.id.iv_toolbar_profile_pic);
+        mToolBarPic = findViewById(R.id.iv_toolbar_profile_pic);
         // Add the toolbar in as the actionbar
         setSupportActionBar(mToolBar);
 
         /**
          Create View Models. New for part 2.
          */
-        mWeatherViewModel = ViewModelProviders.of(this).get(WeatherViewModel.class);
+        //mWeatherViewModel = ViewModelProviders.of(this).get(WeatherViewModel.class);
+
+        // ProfileViewModel needed to make sure mUserProfile us up to date as well as profile pic
         mProfileViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
+        // Any time the profile is updated, the profileObserver will run.
+        mProfileViewModel.getProfile().observe(this, profileObserver);
 
         // Start a transaction for filling the screen with
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
@@ -79,9 +81,6 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         File file = new File(getApplicationContext().getFilesDir(), fileName);
         if(savedInstanceState != null){
             if(file.exists()) {
-                readProfileFromFile();
-                readPictureFromFile();
-                mPicture.setImageBitmap(mProfilePicture);
                 if(isTablet()) {
                     // Set the Menu
                     mFragment = new MasterFragment();
@@ -111,10 +110,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             }
         }
         else {
-            if(mProfileViewModel.getNumberOfProfilesInDatabase() > 0) { // The user is restarting the app and has a profile.
-                readProfileFromFile();
-                readPictureFromFile();
-                mPicture.setImageBitmap(mProfilePicture);
+            if(file.exists()) { // The user is restarting the app and has a profile.
                 if(isTablet()) {
                     // Set the menu. The right pane can be left blank unless we decide otherwise aesthetically.
                     mFragment = new MasterFragment();
@@ -144,30 +140,27 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         ftrans.commit();
     }
 
-    private void readProfileFromFile() {
-        try {
-            FileInputStream in = openFileInput(fileName);
-            ObjectInputStream o_in = new ObjectInputStream(in);
-            mUserProfile = (UserProfile) o_in.readObject();
-            o_in.close();
-            in.close();
-        }
-        catch(Exception e){
-            e.printStackTrace();
+    /**
+     https://developer.android.com/topic/libraries/architecture/viewmodel#sharing used the
+     another format to observe, while the examples from class created this separate 'observer'
+     method. They seem to be comparable to me, but I couldn't get the web's format to work.
+     */
+    // Create an observer that watches the LiveData<UserProfile> object.
+    final Observer<UserProfile> profileObserver = new Observer<UserProfile>() {
+        @Override
+        public void onChanged(@Nullable UserProfile profile) {
+            // Update the UI if the data variable changes
+            // TODO: Find out if this means that we can store the profile picture as part of the user profile.
+            if(profile != null) {
+                // Set the user profile to the new data
+                mUserProfile = profile;
+                // Set the Toolbar's picture to the new picture data
+                mToolBarPic.setImageBitmap(GeneralUtils.convertImage(mUserProfile.getImage()));
+            }
         }
 
-    }
+    };
 
-    private void readPictureFromFile() {
-        try{
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            mProfilePicture = BitmapFactory.decodeFile(pictureName, options);
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     public boolean isTablet() {
         return getResources().getBoolean(R.bool.isTablet);
@@ -191,21 +184,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         }
     }
 
-    private void savePictureToFile() {
-        // Open a file and write to it
-        File file = new File(getApplicationContext().getFilesDir(), pictureName);
-        if(file.exists()){file.delete();}
-        try{
-            FileOutputStream out = openFileOutput(pictureName, Context.MODE_PRIVATE);
-            mProfilePicture.compress(Bitmap.CompressFormat.JPEG, 90, out);
-            out.flush();
-            out.close();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
 
-        }
-    }
     /**
      * Saves data required for lifecycle awareness lifecycle awareness
      */
@@ -243,23 +222,14 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     public void passData(String name, int age, int weight, int height, String activityLevel, boolean sex, String country,
                          String city, Bitmap picture) {
 
-        mProfilePicture = picture;
-        mPicture.setImageBitmap(mProfilePicture);
         // Create the UserProfile
-        mUserProfile = new UserProfile(name, age, weight, height, activityLevel, sex, country, city);
+        UserProfile up = new UserProfile(name, age, weight, height, activityLevel, sex, country, city, GeneralUtils.convertImage(picture));
 
         // We're going to load different screens based on whether the profile's been made before.
         File file = new File(getApplicationContext().getFilesDir(), fileName);
-        if(file.exists()) {
+
             // Save user's credentials to file
             saveProfileToFile();
-            savePictureToFile();
-            goToUserProfile(this.getCurrentFocus());
-        }
-        else {
-            // Save user's credentials to file
-            saveProfileToFile();
-            savePictureToFile();
             FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
             if(isTablet()){
                 // In the case that the profile's just been made, the
@@ -278,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
                 ftrans.commit();
             }
 
-        }
+
     }
 
 

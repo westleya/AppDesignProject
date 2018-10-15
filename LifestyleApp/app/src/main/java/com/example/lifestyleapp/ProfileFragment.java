@@ -34,7 +34,7 @@ public class ProfileFragment extends Fragment {
         mTvWeight = view.findViewById(R.id.tv_weight);
         mTvSex = view.findViewById(R.id.tv_sex);
         mTvActivity = view.findViewById(R.id.tv_activityLevel);
-        mIvPic = view.findViewById(R.id.iv_pic);
+        mIvPic = view.findViewById(R.id.iv_profile_fragment_pic);
 
         /**
          New for Part 2. Gets the same instance of the ProfileViewModel as was created in Main.
@@ -55,6 +55,9 @@ public class ProfileFragment extends Fragment {
             mTvWeight.setText(Integer.toString(profile.getWeight()));
             mTvSex.setText(GeneralUtils.sexToString(profile.getSex()));
             mTvActivity.setText(profile.getActivityLevel());
+            byte[] imageAsBytes = profile.getImage();
+            Bitmap image = GeneralUtils.convertImage(imageAsBytes);
+            mIvPic.setImageBitmap(image);
         }
 
 
@@ -71,7 +74,6 @@ public class ProfileFragment extends Fragment {
         @Override
         public void onChanged(@Nullable UserProfile profile) {
             // Update the UI if the data variable changes
-            // TODO: Find out if this means that we can store the profile picture as part of the user profile.
             if(profile != null) {
                 mTvName.setText(profile.getName());
                 mTvAge.setText(Integer.toString(profile.getAge()));
@@ -81,6 +83,7 @@ public class ProfileFragment extends Fragment {
                 mTvWeight.setText(Integer.toString(profile.getWeight()));
                 mTvSex.setText(GeneralUtils.sexToString(profile.getSex()));
                 mTvActivity.setText(profile.getActivityLevel());
+                mIvPic.setImageBitmap(GeneralUtils.convertImage(profile.getImage()));
             }
         }
 
