@@ -15,7 +15,7 @@ public class WeatherRepository {
     private String mLocation;
 
     WeatherRepository(Application application){
-        loadData();
+
     }
 
     public void setLocation(String location){

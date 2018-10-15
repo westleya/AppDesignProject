@@ -1,5 +1,6 @@
 package com.example.lifestyleapp;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -42,6 +43,13 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
                 int year = Integer.parseInt(mSpTargetYear.getSelectedItem().toString());
                 int month = Integer.parseInt(mSpTargetMonth.getSelectedItem().toString());
                 int day = Integer.parseInt(mTargetDay.getSelectedItem().toString());
+
+                /**
+                 New for Part 2. Gets the same instance of the ProfileViewModel as was created in Main.
+                 */
+                // Changed "this" to "getActivity()" - not sure which is correct right now
+                ProfileViewModel profileViewModel = ViewModelProviders.of(getActivity()).get(ProfileViewModel.class);
+                mCurrentWeight = profileViewModel.getProfile().getValue().getWeight();
 
                 // Figure out the user's weight goal
                 String goal = "Maintain Weight";
@@ -133,9 +141,6 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //Inflate the detail view
         View view = inflater.inflate(R.layout.edit_goals, container, false);
-
-        // Get user details needed by this class
-        mCurrentWeight = getArguments().getInt("WEIGHT");
 
         //Get the text view
         mSpTargetWeight =  view.findViewById(R.id.spinner_targetWeight);

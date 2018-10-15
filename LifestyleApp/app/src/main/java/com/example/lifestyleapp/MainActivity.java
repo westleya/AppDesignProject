@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -64,8 +63,6 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         /**
          Create View Models. New for part 2.
          */
-        //mWeatherViewModel = ViewModelProviders.of(this).get(WeatherViewModel.class);
-
         // ProfileViewModel needed to make sure mUserProfile us up to date as well as profile pic
         mProfileViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
         // Any time the profile is updated, the profileObserver will run.
@@ -150,7 +147,6 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         @Override
         public void onChanged(@Nullable UserProfile profile) {
             // Update the UI if the data variable changes
-            // TODO: Find out if this means that we can store the profile picture as part of the user profile.
             if(profile != null) {
                 // Set the user profile to the new data
                 mUserProfile = profile;
@@ -484,21 +480,15 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
      */
     public void goToEditGoal(View view){
 
-        Bundle detailBundle = new Bundle();
-        detailBundle.putInt("WEIGHT", mUserProfile.getWeight());
-        detailBundle.putBoolean("MALE", mUserProfile.getSex());
-
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
 
         if(isTablet()) {
             mTabletFragment = new EditGoalsFragment();
-            mTabletFragment.setArguments(detailBundle);
             ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
                     "Edit_Goals_Fragment");
         }
         else {
             mFragment = new EditGoalsFragment();
-            mFragment.setArguments(detailBundle);
             ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Goals_Fragment");
         }
         ftrans.addToBackStack(null);
