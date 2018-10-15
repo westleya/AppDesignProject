@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private int mProfilesInDatabase = 0;
     private UserProfile mUserProfile;
-    private String fileName = "user_profile.txt";
     private Fragment mFragment; // Sufficient for the phone
     private Fragment mTabletFragment; // Necessary for the two-pane nature of the tablet
     private Toolbar mToolBar;
@@ -63,15 +62,11 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
         // Add the toolbar in as the actionbar
         setSupportActionBar(mToolBar);
 
-<<<<<<< HEAD
-=======
+
         /**
          Create View Models. New for part 2.
          */
-<<<<<<< HEAD
->>>>>>> 9599b8a7dbab770c70ca29193d08ce9595ce95ee
-=======
->>>>>>> 9599b8a7dbab770c70ca29193d08ce9595ce95ee
+
         // ProfileViewModel needed to make sure mUserProfile us up to date as well as profile pic
         mProfileViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
         // Any time the profile is updated, the profileObserver will run.
@@ -174,8 +169,6 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
                 mUserProfile = profile;
                 // Set the Toolbar's picture to the new picture data
                 mToolBarPic.setImageBitmap(GeneralUtils.convertImage(mUserProfile.getImage()));
-
-                //Log.d("NUMBER OF ROWS FROM MAIN ACTIVITY", Integer.toString(mProfileViewModel.getNumberOfProfilesInDatabase()));
             }
 
         }
@@ -186,25 +179,6 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
     public boolean isTablet() {
         return getResources().getBoolean(R.bool.isTablet);
     }
-
-    public void saveProfileToFile() {
-
-        // Open a file and write to it
-        File file = new File(getApplicationContext().getFilesDir(), fileName);
-        if(file.exists()) { file.delete(); }
-        try {
-            FileOutputStream out = openFileOutput(fileName, Context.MODE_PRIVATE);
-            ObjectOutputStream o_out = new ObjectOutputStream(out);
-            o_out.writeObject(mUserProfile);
-            o_out.flush();
-            o_out.close();
-            out.close();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 
     /**
      * Saves data required for lifecycle awareness lifecycle awareness
@@ -481,7 +455,6 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
 
         // The home and profile buttons should only work after the user has finished filling
         // out their profile and behave differently depending on tablet/phone.
-        File file = new File(getApplicationContext().getFilesDir(), fileName);
         if(mProfilesInDatabase > 0) {
             FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
 
