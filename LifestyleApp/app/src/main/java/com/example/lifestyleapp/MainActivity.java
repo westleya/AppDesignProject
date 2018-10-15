@@ -68,6 +68,9 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
         /**
          Create View Models. New for part 2.
          */
+<<<<<<< HEAD
+>>>>>>> 9599b8a7dbab770c70ca29193d08ce9595ce95ee
+=======
 >>>>>>> 9599b8a7dbab770c70ca29193d08ce9595ce95ee
         // ProfileViewModel needed to make sure mUserProfile us up to date as well as profile pic
         mProfileViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
