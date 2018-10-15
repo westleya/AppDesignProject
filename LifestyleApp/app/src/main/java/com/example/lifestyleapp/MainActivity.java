@@ -7,11 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -20,16 +20,18 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
+import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends AppCompatActivity implements EditProfileFragment.OnDataPass,
-        RCViewAdapter.DataPasser, EditGoalsFragment.OnDataPass {
+public class MainActivity extends AppCompatActivity implements RCViewAdapter.DataPasser, EditGoalsFragment.OnDataPass {
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    private int mProfilesInDatabase = 0;
     private UserProfile mUserProfile;
     private String fileName = "user_profile.txt";
     private Fragment mFragment; // Sufficient for the phone
@@ -61,15 +63,29 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         // Add the toolbar in as the actionbar
         setSupportActionBar(mToolBar);
 
+<<<<<<< HEAD
+=======
         /**
          Create View Models. New for part 2.
          */
-        //mWeatherViewModel = ViewModelProviders.of(this).get(WeatherViewModel.class);
-
+>>>>>>> 9599b8a7dbab770c70ca29193d08ce9595ce95ee
         // ProfileViewModel needed to make sure mUserProfile us up to date as well as profile pic
         mProfileViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
         // Any time the profile is updated, the profileObserver will run.
         mProfileViewModel.getProfile().observe(this, profileObserver);
+
+        /*
+         * THIS HANDLES WHETHER OR NOT THERE IS A ROW IN THE TABLE
+         */
+        VoidAsyncTask rowsInDatabaseTask = mProfileViewModel.getNumberOfProfilesInDatabase();
+        rowsInDatabaseTask.execute();
+        try {
+            mProfilesInDatabase = (int) rowsInDatabaseTask.get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         // Start a transaction for filling the screen with
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
@@ -78,9 +94,9 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         // that was active. Check if there's a saved file. If there is a file, bring up
         // the menu page. If there's no file, bring up the edit_profile page.
         // The implementation is different depending on tablet/phone.
-        File file = new File(getApplicationContext().getFilesDir(), fileName);
+
         if(savedInstanceState != null){
-            if(file.exists()) {
+            if(mProfilesInDatabase > 0) {
                 if(isTablet()) {
                     // Set the Menu
                     mFragment = new MasterFragment();
@@ -110,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
             }
         }
         else {
-            if(file.exists()) { // The user is restarting the app and has a profile.
+            if(mProfilesInDatabase > 0) { // The user is restarting the app and has a profile.
                 if(isTablet()) {
                     // Set the menu. The right pane can be left blank unless we decide otherwise aesthetically.
                     mFragment = new MasterFragment();
@@ -150,13 +166,15 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         @Override
         public void onChanged(@Nullable UserProfile profile) {
             // Update the UI if the data variable changes
-            // TODO: Find out if this means that we can store the profile picture as part of the user profile.
             if(profile != null) {
                 // Set the user profile to the new data
                 mUserProfile = profile;
                 // Set the Toolbar's picture to the new picture data
                 mToolBarPic.setImageBitmap(GeneralUtils.convertImage(mUserProfile.getImage()));
+
+                //Log.d("NUMBER OF ROWS FROM MAIN ACTIVITY", Integer.toString(mProfileViewModel.getNumberOfProfilesInDatabase()));
             }
+
         }
 
     };
@@ -204,51 +222,6 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         }
         //Save the view hierarchy
         super.onSaveInstanceState(outState);
-    }
-
-
-    /**
-     * Handles the incoming data from the EditProfileFragment
-     *
-     * @param name - user's name
-     * @param age - user's age
-     * @param weight - user's weight
-     * @param height - height in inches
-     * @param sex - female = false, male = true
-     * @param country - country where user lives
-     * @param city - city where user lives
-     */
-    @Override
-    public void passData(String name, int age, int weight, int height, String activityLevel, boolean sex, String country,
-                         String city, Bitmap picture) {
-
-        // Create the UserProfile
-        UserProfile up = new UserProfile(name, age, weight, height, activityLevel, sex, country, city, GeneralUtils.convertImage(picture));
-
-        // We're going to load different screens based on whether the profile's been made before.
-        File file = new File(getApplicationContext().getFilesDir(), fileName);
-
-            // Save user's credentials to file
-            saveProfileToFile();
-            FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-            if(isTablet()){
-                // In the case that the profile's just been made, the
-                // menu fragment needs to be brought up on the tablet.
-                mFragment = new MasterFragment();
-                ftrans.replace(R.id.fl_frag_masterlist_container_tablet, mFragment, "Menu_Fragment");
-                ftrans.commit();
-                // Might as well take them directly to goal setup.
-                goToEditGoal(this.getCurrentFocus());
-            }
-            else {
-                // Going immediately to goals isn't as intuitive on the phone.
-                // So, go to menu.
-                mFragment = new MasterFragment();
-                ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Menu_Fragment");
-                ftrans.commit();
-            }
-
-
     }
 
 
@@ -444,8 +417,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
     public void returnToHome(View view) {
         // The home and profile buttons should only work after the user has finished filling
         // out their profile and behave differently depending on tablet/phone.
-        File file = new File(getApplicationContext().getFilesDir(), fileName);
-        if(file.exists()) {
+        if(mProfilesInDatabase > 0) {
             FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
             if(isTablet()) {
                 // I'm not sure what to do here since menu is always visible on tablet.
@@ -484,21 +456,15 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
      */
     public void goToEditGoal(View view){
 
-        Bundle detailBundle = new Bundle();
-        detailBundle.putInt("WEIGHT", mUserProfile.getWeight());
-        detailBundle.putBoolean("MALE", mUserProfile.getSex());
-
         FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
 
         if(isTablet()) {
             mTabletFragment = new EditGoalsFragment();
-            mTabletFragment.setArguments(detailBundle);
             ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
                     "Edit_Goals_Fragment");
         }
         else {
             mFragment = new EditGoalsFragment();
-            mFragment.setArguments(detailBundle);
             ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Edit_Goals_Fragment");
         }
         ftrans.addToBackStack(null);
@@ -513,7 +479,7 @@ public class MainActivity extends AppCompatActivity implements EditProfileFragme
         // The home and profile buttons should only work after the user has finished filling
         // out their profile and behave differently depending on tablet/phone.
         File file = new File(getApplicationContext().getFilesDir(), fileName);
-        if(file.exists()) {
+        if(mProfilesInDatabase > 0) {
             FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
 
             if(isTablet()) {

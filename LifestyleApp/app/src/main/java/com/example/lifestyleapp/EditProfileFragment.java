@@ -71,8 +71,6 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     private int mSex; // 0 = female, 1 = male, 2 = none selected
     private Bitmap mProfilePic;
 
-    // Callback for getting data to Activity
-    private OnDataPass mDataPasser;
 
     ProfileViewModel mProfileViewModel;
 
@@ -267,9 +265,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
                         mCountry, mCity, GeneralUtils.convertImage(mProfilePic));
                 mProfileViewModel.update(profile);
 
-                // IF WE MADE IT HERE, WE HAVE ALL THE DATA TO SEND TO THE MAIN ACTIVITY
-                // TO CREATE A PROFILE FOR THE CURRENT USER VIA THE CALLBACK
-                mDataPasser.passData(mName.trim(), mAge, mWeight, mHeight, mActivityLevel, sexBoolean, mCountry, mCity, mProfilePic);
+                // Return to the profile fragment
 
             } // End submit button case
             break;
@@ -331,32 +327,6 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
         return;
-    }
-
-
-    /**
-     * Callback interface for sending data to the Activity
-     */
-    public interface OnDataPass{
-        void passData(String name, int age, int weight, int height, String activityLevel, boolean sex, String country,
-                             String city, Bitmap picture);
-    }
-
-    //Associate the callback with this Fragment
-
-    /**
-     * Helps with the callback for data passing to the main activity
-     */
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-        try{
-            mDataPasser = (OnDataPass) context;
-        }
-        catch(ClassCastException e){
-            throw new ClassCastException(context.toString() + " must implement OnDataPass");
-        }
     }
 
 

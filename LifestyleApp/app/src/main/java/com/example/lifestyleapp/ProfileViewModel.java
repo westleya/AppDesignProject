@@ -3,6 +3,7 @@ package com.example.lifestyleapp;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
+import android.os.AsyncTask;
 
 public class ProfileViewModel extends AndroidViewModel {
 
@@ -17,7 +18,7 @@ public class ProfileViewModel extends AndroidViewModel {
     }
 
     // Get number of rows in repository
-    public int getNumberOfProfilesInDatabase(){
+    public VoidAsyncTask getNumberOfProfilesInDatabase(){
         return mRepository.getNumberOfProfilesInDatabase();
     }
 

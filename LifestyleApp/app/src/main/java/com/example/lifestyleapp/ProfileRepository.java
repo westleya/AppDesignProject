@@ -3,6 +3,7 @@ package com.example.lifestyleapp;
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.os.AsyncTask;
+import android.util.Log;
 
 /**
  * A Repository is a class that abstracts access to multiple data sources. A Repository class
@@ -56,15 +57,13 @@ public class ProfileRepository {
     }
 
     // Gets the number of rows in the table
-    public int getNumberOfProfilesInDatabase(){
+    public VoidAsyncTask getNumberOfProfilesInDatabase(){
         rowsInDatabaseTask task = new rowsInDatabaseTask(mProfileDao);
-        task.execute();
-        int rowsInDatabase = task.getResult();
-        return rowsInDatabase;
+        return task;
     }
 
     // For getting the number of rows/entries in the database
-    private static class rowsInDatabaseTask extends AsyncTask<Void, Void, Void> {
+    private static class rowsInDatabaseTask extends VoidAsyncTask<Integer> {
 
         private ProfileDao mAsyncTaskDao;
         private int result;
@@ -74,9 +73,13 @@ public class ProfileRepository {
         }
 
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected Integer doInBackground(Void... voids) {
             result =  mAsyncTaskDao.getNumberOfProfilesInDatabase();
-            return null;
+            return result;
+        }
+
+        protected int onPostExecute(int result) {
+            return result;
         }
 
         public int getResult(){
