@@ -1,13 +1,13 @@
 package com.example.lifestyleapp;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,13 +25,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 
-import static android.widget.AdapterView.*;
+import static android.widget.AdapterView.OnItemSelectedListener;
 
 /**
  * create an instance of this fragment.
@@ -263,9 +263,53 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
                 // SAVES THIS UPDATE TO THE DATABASE
                 UserProfile profile = new UserProfile(mName.trim(), mAge, mWeight, mHeight, mActivityLevel, sexBoolean,
                         mCountry, mCity, GeneralUtils.convertImage(mProfilePic));
+                // Response to editing the profile will be different depending on if it's the user's
+                // first use of the app or not. We'll check the database for a profile to confirm.
+                boolean firstTime = true;
+                int ProfilesInDatabase = 0;
+                VoidAsyncTask rowsInDB = mProfileViewModel.getNumberOfProfilesInDatabase();
+                rowsInDB.execute();
+                try {
+                     ProfilesInDatabase = (int) rowsInDB.get();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if( ProfilesInDatabase > 0) {
+                    firstTime = false;
+                }
                 mProfileViewModel.update(profile);
 
-                // Return to the profile fragment
+                if(firstTime) {
+                    // For the tablet we'll want to set the menu as well as bring up edit goals
+                    // For the phone we'll just go to menu.
+                    FragmentTransaction ftrans = getActivity().getSupportFragmentManager().beginTransaction();
+                    MasterFragment masterFragment = new MasterFragment();
+                    if(getResources().getBoolean(R.bool.isTablet)){
+                        EditGoalsFragment editGoalsFragment = new EditGoalsFragment();
+                        ftrans.replace(R.id.fl_frag_masterlist_container_tablet, masterFragment,"Menu_Fragment");
+                        ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, editGoalsFragment,"Edit_Goals_Fragment");
+                    }
+                    else {
+                        ftrans.replace(R.id.fl_frag_masterlist_container_phone, masterFragment, "Menu_Fragment");
+                    }
+                    ftrans.commit();
+                }
+                else {
+                    // Return to the profile fragment
+                    ProfileFragment profileFragment = new ProfileFragment();
+                    FragmentTransaction ftrans = getActivity().getSupportFragmentManager().beginTransaction();
+                    if(getResources().getBoolean(R.bool.isTablet)) {
+                        ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, profileFragment, "Profile_Fragment");
+                    }
+                    else {
+                        ftrans.replace(R.id.fl_frag_masterlist_container_phone, profileFragment, "Profile_Fragment");
+                    }
+                    ftrans.addToBackStack(null);
+                    ftrans.commit();
+
+                }
 
             } // End submit button case
             break;

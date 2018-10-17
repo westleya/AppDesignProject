@@ -1,5 +1,6 @@
 package com.example.lifestyleapp;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -27,12 +28,20 @@ public class GoalsFragment extends Fragment {
         mTvCurrentBMI = view.findViewById(R.id.tv_currentBMI);
         mTvTargetCalorie = view.findViewById(R.id.tv_targetCalorie);
 
-        // Get the incoming details
-        String goal = getArguments().getString("GOAL");
-        int currentWeight = getArguments().getInt("CURRENT_WEIGHT");
-        int targetWeight = getArguments().getInt("TARGET_WEIGHT");
-        int BMI = getArguments().getInt("BMI");
-        int dailyCalorieTarget = getArguments().getInt("TARGET_CALORIES");
+        /**
+         New for Part 2. Gets the same instance of the ProfileViewModel as was created in Main.
+         */
+        // Changed "this" to "getActivity()" - not sure which is correct right now
+        ProfileViewModel profileViewModel = ViewModelProviders.of(getActivity()).get(ProfileViewModel.class);
+        UserProfile userProfile = profileViewModel.getProfile().getValue();
+
+        // Get goal details
+        int currentWeight = userProfile.getWeight();
+        int targetWeight = userProfile.getTargetWeight();
+        int BMI = FitnessUtils.calculateBMI(userProfile);
+        int dailyCalorieTarget = FitnessUtils.calculateExpectedCaloricIntake(userProfile);
+
+        String goal = userProfile.getGoal();
 
         if (MainActivity.debug) {
             assert(targetWeight == 60);

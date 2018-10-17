@@ -1,11 +1,11 @@
 package com.example.lifestyleapp;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +29,6 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
     private Spinner mSpTargetMonth;
     private Spinner mTargetDay;
     private Button mButtonCalculate;
-    private EditGoalsFragment.OnDataPass mDataPasser;
 
     private int mCurrentWeight;
 
@@ -49,7 +48,8 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
                  */
                 // Changed "this" to "getActivity()" - not sure which is correct right now
                 ProfileViewModel profileViewModel = ViewModelProviders.of(getActivity()).get(ProfileViewModel.class);
-                mCurrentWeight = profileViewModel.getProfile().getValue().getWeight();
+                UserProfile userProfile = profileViewModel.getProfile().getValue();
+                mCurrentWeight = userProfile.getWeight();
 
                 // Figure out the user's weight goal
                 String goal = "Maintain Weight";
@@ -120,8 +120,21 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
+                userProfile.setTargetWeight(goalWeight);
+                userProfile.setPoundsPerWeek(poundsPerWeek);
+                userProfile.setGoal(goal);
+                profileViewModel.update(userProfile);
 
-                mDataPasser.passDataEditGoal(goalWeight, goal, poundsPerWeek);
+                GoalsFragment goalsFragment = new GoalsFragment();
+                FragmentTransaction ftrans = getActivity().getSupportFragmentManager().beginTransaction();
+                if(getResources().getBoolean(R.bool.isTablet)) {
+                    ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, goalsFragment, "Goals_Fragment" );
+                }
+                else {
+                    ftrans.replace(R.id.fl_frag_masterlist_container_phone, goalsFragment, "Goals_Fragment");
+                }
+                ftrans.addToBackStack(null);
+                ftrans.commit();
             }
         }
     }
@@ -190,21 +203,6 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
 //        mTargetDay.setSelection(getIndex(mTargetDay, getArguments().getString("goals")));
 
         return view;
-    }
-
-    public interface OnDataPass{
-        void passDataEditGoal(int weight, String goal, double poundsPerWeek);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try{
-            mDataPasser = (EditGoalsFragment.OnDataPass) context;
-        }
-        catch(ClassCastException e){
-            throw new ClassCastException(context.toString() + " must implement OnDataPass");
-        }
     }
 
     @Override

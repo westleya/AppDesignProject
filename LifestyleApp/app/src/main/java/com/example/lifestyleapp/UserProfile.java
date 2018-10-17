@@ -2,7 +2,6 @@ package com.example.lifestyleapp;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
@@ -74,10 +73,10 @@ public class UserProfile implements Serializable{
         this.image = image;
 
         // Set these values later once the user has defined a health/fitness goal.
-        // Will be initially set to negative values to denote that no gaol has been defined
+        // Will be initially set to 0/empty values to denote that no goal has been defined
         goal = "";
-        targetWeight = -1;
-        poundsPerWeek = -1;
+        targetWeight = 0;
+        poundsPerWeek = 0;
 
     }
 

@@ -18,7 +18,7 @@ public class WeatherFragment extends Fragment  {
     //WeatherData mWeatherData;
 
     //Uniquely identify loader
-    private static final int SEARCH_LOADER = 11;
+    //private static final int SEARCH_LOADER = 11;
 
     public WeatherFragment(){}
 

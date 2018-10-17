@@ -6,12 +6,10 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -20,15 +18,11 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends AppCompatActivity implements RCViewAdapter.DataPasser, EditGoalsFragment.OnDataPass {
+public class MainActivity extends AppCompatActivity implements RCViewAdapter.DataPasser {
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private int mProfilesInDatabase = 0;
@@ -201,44 +195,6 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
         super.onSaveInstanceState(outState);
     }
 
-
-    /**
-     * Handles the incoming data from the EditGoalsFragment.
-     *
-     * @param goalWeight
-     */
-    @Override
-    public void passDataEditGoal(int goalWeight, String goal, double poundsPerWeek ) {
-
-        // Set the new data to the user profile
-        mUserProfile.setTargetWeight(goalWeight);
-        mUserProfile.setPoundsPerWeek(poundsPerWeek);
-        mUserProfile.setGoal(goal);
-
-        Bundle detailBundle = new Bundle();
-        detailBundle.putString("GOAL", mUserProfile.getGoal());
-        detailBundle.putInt("CURRENT_WEIGHT", mUserProfile.getWeight());
-        detailBundle.putInt("TARGET_WEIGHT", mUserProfile.getTargetWeight());
-        detailBundle.putInt("BMI", FitnessUtils.calculateBMI(mUserProfile));
-        detailBundle.putInt("TARGET_CALORIES", FitnessUtils.calculateExpectedCaloricIntake(mUserProfile));
-
-        FragmentTransaction ftrans = getSupportFragmentManager().beginTransaction();
-        if(isTablet()) {
-            mTabletFragment = new GoalsFragment();
-            mTabletFragment.setArguments(detailBundle);
-            ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
-                    "Goals_Fragment");
-        }
-        else {
-            mFragment = new GoalsFragment();
-            mFragment.setArguments(detailBundle);
-            ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals_Fragment");
-        }
-
-        ftrans.addToBackStack(null);
-        ftrans.commit();
-    }
-
     /**
      * Handles the incoming position from the Recycler View Adapter.
      * Basically handles which menu item was clicked.
@@ -254,40 +210,25 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
         // FIGURE OUT POSITION OF CLICK (WHICH MENU ITEM WAS SELECTED)
         if(position == 0){ // GOALS
 
-            detailBundle.putString("GOAL", mUserProfile.getGoal());
-            detailBundle.putInt("CURRENT_WEIGHT", mUserProfile.getWeight());
-            detailBundle.putInt("TARGET_WEIGHT", mUserProfile.getTargetWeight());
-            detailBundle.putInt("BMI", FitnessUtils.calculateBMI(mUserProfile));
-            detailBundle.putInt("TARGET_CALORIES", FitnessUtils.calculateExpectedCaloricIntake(mUserProfile));
-
             if(isTablet()) {
                 mTabletFragment = new GoalsFragment();
-                mTabletFragment.setArguments(detailBundle);
                 ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
                         "Goals_Fragment");
             }
             else {
                 mFragment = new GoalsFragment();
-                mFragment.setArguments(detailBundle);
                 ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Goals_Fragment");
             }
         }
         else if(position == 1){ // WEATHER
-            // Sanitize the location for querying the openWeather API
-            String location = mUserProfile.getCity().replace(' ', '&');
-            location += "&" + mUserProfile.getCountry().replace(' ', '&');
-           // Add the data to the bundle to be sent to the fragment
-            detailBundle.putString("location", location);
 
             if(isTablet()) {
                 mTabletFragment = new WeatherFragment();
-                mTabletFragment.setArguments(detailBundle);
                 ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
                         "Weather_Fragment");
             }
             else {
                 mFragment = new WeatherFragment();
-                mFragment.setArguments(detailBundle);
                 ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Weather_Fragment");
             }
         }
