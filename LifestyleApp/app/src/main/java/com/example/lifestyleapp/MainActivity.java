@@ -18,7 +18,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
+
+import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobile.client.AWSStartupHandler;
+import com.amazonaws.mobile.client.AWSStartupResult;
 
 import java.util.concurrent.ExecutionException;
 
@@ -35,10 +40,8 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
     private double longitude;
     private double latitude;
     private String mSearchFor = "hikes";
-    private WeatherViewModel mWeatherViewModel;
     private ProfileViewModel mProfileViewModel;
     public static boolean debug = false;
-
 
     //Uniquely identify loader
     private static final int SEARCH_LOADER = 11;
@@ -47,6 +50,14 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Establishes AWS connection and acts as an interface for its services.
+        AWSMobileClient.getInstance().initialize(this, new AWSStartupHandler() {
+            @Override
+            public void onComplete(AWSStartupResult awsStartupResult) {
+                Log.d("YourMainActivity", "AWSMobileClient is instantiated and you are connected to AWS!");
+            }
+        }).execute();
 
         // Find the toolbar view inside of the activity_layout
         mToolBar = findViewById(R.id.toolbar);
