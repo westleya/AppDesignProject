@@ -55,6 +55,8 @@ public abstract class ProfileRoomDatabase extends RoomDatabase{
 
         @Override
         protected Void doInBackground(final Void... params) {
+
+            // SET DELETE ALL FOR TESTING PURPOSES. CLEARS OUT DATABASE SO IT'S EMPTY
             // mDao.deleteAll();
 
             // Insert a profile

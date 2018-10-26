@@ -22,6 +22,11 @@ import java.io.File;
  * A Repository manages query threads and allows you to use multiple backends. In the most common
  * example, the Repository implements the logic for deciding whether to fetch data from a network
  * or use results cached in a local database.
+ *
+ * Information from Amazon regarding uploading and downloading files:
+ * https://docs.aws.amazon.com/aws-mobile/latest/developerguide/mobile-hub-add-aws-mobile-user-data-storage.html
+ * Additional tutorial linked from class:
+ * https://grokonez.com/android/uploaddownload-files-images-amazon-s3-android#1_Integrate_AWS_Mobile_SDK_into_Android_App
  */
 public class ProfileRepository {
 
@@ -31,8 +36,9 @@ public class ProfileRepository {
 
 
     ProfileRepository(Application application) {
-        ProfileRoomDatabase db = ProfileRoomDatabase.getDatabase(application);
         mApplication = application;
+
+        ProfileRoomDatabase db = ProfileRoomDatabase.getDatabase(application);
         mProfileDao = db.profileDao();
         mUserProfile = mProfileDao.getFirstProfile(); // Defaults mUserProfile to first in db
     }
@@ -42,7 +48,7 @@ public class ProfileRepository {
         return mUserProfile;
     }
 
-    // Wrapper function for the insert() method
+    // Inserts a user profile
     public void insert(UserProfile profile){
         new insertAsyncTask(mProfileDao).execute(profile);
         uploadProfileDatabase();
@@ -115,6 +121,19 @@ public class ProfileRepository {
         uploadWithTransferUtility(file);
     }
 
+    /**
+     * Helper method that handles uploading all three files associated with the
+     * database that stores the user profile.
+     */
+    private void downloadProfileDatabase(){
+        File file = new File("/data/data/com.example.lifestyleapp/databases/word_database");
+        downloadWithTransferUtility(file);
+        file = new File("/data/data/com.example.lifestyleapp/databases/word_database-shm");
+        downloadWithTransferUtility(file);
+        file = new File("/data/data/com.example.lifestyleapp/databases/word_database-wal");
+        downloadWithTransferUtility(file);
+    }
+
 
     /**
      * Utility for uploading the database files to the cloud via AWS.
@@ -163,6 +182,55 @@ public class ProfileRepository {
 
         Log.d("YourActivity", "Bytes Transferrred: " + uploadObserver.getBytesTransferred());
         Log.d("YourActivity", "Bytes Total: " + uploadObserver.getBytesTotal());
+    }
+
+
+    /**
+     * Utility for downloading the database files to the cloud via AWS.
+     */
+    private void downloadWithTransferUtility(File file) {
+
+        BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAJZ5FWSZ76X64CDKA",
+                "VLP5DvDx1M945Z8BuEOdgbS6wGgNwRc7UPmTnnN0") ;
+        AmazonS3Client client = new AmazonS3Client(credentials) ;
+
+        TransferUtility transferUtility =
+                TransferUtility.builder()
+                        .context(mApplication.getApplicationContext())
+                        .awsConfiguration(AWSMobileClient.getInstance().getConfiguration())
+                        .s3Client(client)
+                        .build();
+
+        TransferObserver downloadObserver =
+                transferUtility.download(file.getName(), file);
+
+        // Attach a listener to the observer to get state update and progress notifications
+        downloadObserver.setTransferListener(new TransferListener() {
+
+            @Override
+            public void onStateChanged(int id, TransferState state) {
+                if (TransferState.COMPLETED == state) {
+                    // Handle a completed upload.
+                }
+            }
+
+            @Override
+            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                float percentDonef = ((float)bytesCurrent/(float)bytesTotal) * 100;
+                int percentDone = (int)percentDonef;
+
+                Log.d("Your Activity", "   ID:" + id + "   bytesCurrent: " + bytesCurrent + "   bytesTotal: " + bytesTotal + " " + percentDone + "%");
+            }
+
+            @Override
+            public void onError(int id, Exception ex) {
+                // Handle errors
+            }
+
+        });
+
+        Log.d("Your Activity", "Bytes Transferrred: " + downloadObserver.getBytesTransferred());
+        Log.d("Your Activity", "Bytes Total: " + downloadObserver.getBytesTotal());
     }
 
 }

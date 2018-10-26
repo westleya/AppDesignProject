@@ -174,6 +174,17 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
                 mUserProfile = profile;
                 // Set the Toolbar's picture to the new picture data
                 mToolBarPic.setImageBitmap(GeneralUtils.convertImage(mUserProfile.getImage()));
+
+                // Update the number of profiles
+                VoidAsyncTask rowsInDatabaseTask = mProfileViewModel.getNumberOfProfilesInDatabase();
+                rowsInDatabaseTask.execute();
+                try {
+                    mProfilesInDatabase = (int) rowsInDatabaseTask.get();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
         }
