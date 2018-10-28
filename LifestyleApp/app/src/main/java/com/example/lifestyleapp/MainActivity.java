@@ -20,6 +20,7 @@ import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.client.AWSStartupHandler;
@@ -254,8 +255,19 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
                 ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Weather_Fragment");
             }
         }
-        else{ // HIKING
+        else if(position == 2){ // HIKING
             FindHikes();
+        }
+        else {
+            if(isTablet()) {
+                mTabletFragment = new StepsFragment();
+                ftrans.replace(R.id.fl_frag_itemdetail_container_tablet, mTabletFragment,
+                        "Step_Fragment");
+            }
+            else {
+                mFragment = new StepsFragment();
+                ftrans.replace(R.id.fl_frag_masterlist_container_phone, mFragment, "Step_Fragment");
+            }
         }
 
         // Create and inflate the fragment
@@ -436,5 +448,12 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
         }
     }
 
+    /**
+     * Shows instructions when the info icon is clicked in the Step Counter display.
+     */
+    public void displayInfo(View view) {
+        Toast.makeText(getApplicationContext(),"Shake left to right to start counter;" +
+                " back and forth to stop.", Toast.LENGTH_LONG  ).show();
+    }
 }
 

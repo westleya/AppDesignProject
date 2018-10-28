@@ -38,10 +38,12 @@ public class MasterFragment extends Fragment {
         menus.add("Goal");
         menus.add("Weather");
         menus.add("Hiking");
+        menus.add("Counter");
         ArrayList<String> menuDescriptions = new ArrayList<>();
         menuDescriptions.add("Review your goals and progress");
         menuDescriptions.add("Current conditions");
         menuDescriptions.add("Find hiking destinations near you");
+        menuDescriptions.add("View your current step count");
 
 
         //Set the adapter
