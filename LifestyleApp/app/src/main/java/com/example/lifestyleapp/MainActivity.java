@@ -187,7 +187,6 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
                     e.printStackTrace();
                 }
             }
-
         }
 
     };
@@ -208,10 +207,10 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
         // Save the current fragment's instance
         // mTabletFragment is the fragment to be saved for tablet.
         // I'm realizing that I may have used an inefficient naming convention.
-        if(isTablet()) {
+        if(isTablet() && mTabletFragment != null) {
             getSupportFragmentManager().putFragment(outState, "FRAG", mTabletFragment);
         }
-        else {
+        else if (mFragment != null){
             getSupportFragmentManager().putFragment(outState, "FRAG", mFragment);
         }
         //Save the view hierarchy
@@ -256,6 +255,7 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
             }
         }
         else if(position == 2){ // HIKING
+            mFragment = null;
             FindHikes();
         }
         else {
