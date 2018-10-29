@@ -21,7 +21,7 @@ public abstract class ProfileRoomDatabase extends RoomDatabase{
             synchronized (ProfileRoomDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                            ProfileRoomDatabase.class, "word_database")
+                            ProfileRoomDatabase.class, "profile_db")
                             .addCallback(sRoomDatabaseCallback)
                             .build();
                 }

@@ -65,22 +65,25 @@ public class WeatherUtils {
 
     public static String getDataFromURL(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        String retVal = null;
         try{
             InputStream inputStream = urlConnection.getInputStream();
+
 
             //Search for the next 'beginning of the input stream
             Scanner scanner = new Scanner(inputStream);
             scanner.useDelimiter("\\A");
 
-            boolean hasInput = scanner.hasNext();
-            if(hasInput){
+            if(scanner.hasNext()){
                 return scanner.next();
             }
             else{
                 return null;
             }
+
         }finally {
             urlConnection.disconnect();
         }
+
     }
 }

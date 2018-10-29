@@ -44,9 +44,6 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
     private ProfileViewModel mProfileViewModel;
     public static boolean debug = false;
 
-    //Uniquely identify loader
-    private static final int SEARCH_LOADER = 11;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

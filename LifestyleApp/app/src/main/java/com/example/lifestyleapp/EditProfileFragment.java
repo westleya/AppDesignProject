@@ -160,7 +160,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         for(int feet = 4; feet < 9; feet++){ // account for feet
             String height = feet + "\'";
             heightValues.add(height);
-            for(int inches = 1; inches < 12; inches++){ // acount for inches
+            for(int inches = 1; inches < 12; inches++){ // account for inches
                 heightValues.add(height + inches + "\"");
             }
         }

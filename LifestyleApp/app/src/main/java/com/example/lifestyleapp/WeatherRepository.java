@@ -37,6 +37,7 @@ public class WeatherRepository {
                 if(location!=null) {
                     weatherDataURL = WeatherUtils.buildURLFromLocation(location);
                     try {
+                        // ERROR HERE: Sometimes getDataFromURL fails with bad city names (I think)
                         retrievedJsonData = WeatherUtils.getDataFromURL(weatherDataURL);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -45,6 +46,7 @@ public class WeatherRepository {
                 return retrievedJsonData;
             }
 
+            // 's' is basically "retrievedJsonData" from doInBackground() function (I think).
             @Override
             protected void onPostExecute(String s) {
                 try {

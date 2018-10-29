@@ -114,11 +114,11 @@ public class ProfileRepository {
      * database that stores the user profile.
      */
     private void uploadProfileDatabase(){
-        File file = new File("/data/data/com.example.lifestyleapp/databases/word_database");
+        File file = new File("/data/data/com.example.lifestyleapp/databases/profile_db");
         uploadWithTransferUtility(file);
-        file = new File("/data/data/com.example.lifestyleapp/databases/word_database-shm");
+        file = new File("/data/data/com.example.lifestyleapp/databases/profile_db-shm");
         uploadWithTransferUtility(file);
-        file = new File("/data/data/com.example.lifestyleapp/databases/word_database-wal");
+        file = new File("/data/data/com.example.lifestyleapp/databases/profile_db-wal");
         uploadWithTransferUtility(file);
     }
 
@@ -127,11 +127,11 @@ public class ProfileRepository {
      * database that stores the user profile.
      */
     private void downloadProfileDatabase(){
-        File file = new File("/data/data/com.example.lifestyleapp/databases/word_database");
+        File file = new File("/data/data/com.example.lifestyleapp/databases/profile_db");
         downloadWithTransferUtility(file);
-        file = new File("/data/data/com.example.lifestyleapp/databases/word_database-shm");
+        file = new File("/data/data/com.example.lifestyleapp/databases/profile-shm_db");
         downloadWithTransferUtility(file);
-        file = new File("/data/data/com.example.lifestyleapp/databases/word_database-wal");
+        file = new File("/data/data/com.example.lifestyleapp/databases/profile-wal_db");
         downloadWithTransferUtility(file);
     }
 
