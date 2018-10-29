@@ -31,8 +31,6 @@ public abstract class ProfileRoomDatabase extends RoomDatabase{
     }
 
 
-
-
     // Callback for when the database is initialized.
     private static RoomDatabase.Callback sRoomDatabaseCallback =
             new RoomDatabase.Callback(){
@@ -57,7 +55,7 @@ public abstract class ProfileRoomDatabase extends RoomDatabase{
         protected Void doInBackground(final Void... params) {
 
             // SET DELETE ALL FOR TESTING PURPOSES. CLEARS OUT DATABASE SO IT'S EMPTY
-            // mDao.deleteAll();
+            //mDao.deleteAll();
 
             // Insert a profile
             //UserProfile profile = new UserProfile("Doug Test", 32, 190, 72, "Sedentary", true, "United States", "Salt Lake City");

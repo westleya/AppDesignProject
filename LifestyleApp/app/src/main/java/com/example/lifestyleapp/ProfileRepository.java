@@ -38,6 +38,7 @@ public class ProfileRepository {
     ProfileRepository(Application application) {
         mApplication = application;
 
+        //downloadProfileDatabase();
         ProfileRoomDatabase db = ProfileRoomDatabase.getDatabase(application);
         mProfileDao = db.profileDao();
         mUserProfile = mProfileDao.getFirstProfile(); // Defaults mUserProfile to first in db
