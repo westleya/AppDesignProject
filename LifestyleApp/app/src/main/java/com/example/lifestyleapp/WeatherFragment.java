@@ -37,8 +37,6 @@ public class WeatherFragment extends Fragment  {
         mTvHumidity = (TextView) view.findViewById(R.id.tv_humidity);
         mTvPressure = (TextView) view.findViewById(R.id.tv_press);
 
-        mTvLocation.setText(getArguments().getString("location").replace('&', ' '));
-
         /**
          New for Part 2. Get an instance of the WeatherViewModel and ProfileViewModel.
          */
@@ -50,7 +48,7 @@ public class WeatherFragment extends Fragment  {
         String country = mProfileViewModel.getProfile().getValue().getCountry().replace(' ', '&');
         mWeatherViewModel.setLocation(city + '&' + country);
         mWeatherViewModel.getData().observe(this, weatherObserver);
-
+        mTvLocation.setText(city + ' ' + country);
         //LoadWeatherData(city + '&' + country);
 
         return view;

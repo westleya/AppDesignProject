@@ -17,7 +17,6 @@ public class RCViewAdapter extends RecyclerView.Adapter<RCViewAdapter.ViewHolder
     private Context mContext;
     private DataPasser mDataPasser;
     private ArrayList<String> mMenuItem, mMenuDescriptions;
-    private ArrayList<Integer> mMenuIcons;
 
     /**
      * Constructor
@@ -77,8 +76,11 @@ public class RCViewAdapter extends RecyclerView.Adapter<RCViewAdapter.ViewHolder
         else if (position == 1){
             holder.itemIvImage.setImageResource(R.drawable.weather);
         }
-        else{
+        else if (position == 2){
             holder.itemIvImage.setImageResource(R.drawable.hiking);
+        }
+        else {
+            holder.itemIvImage.setImageResource(R.drawable.steps);
         }
 
 

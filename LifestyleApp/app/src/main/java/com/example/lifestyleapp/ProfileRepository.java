@@ -230,7 +230,7 @@ public class ProfileRepository {
 
         });
 
-        Log.d("Your Activity", "Bytes Transferrred: " + downloadObserver.getBytesTransferred());
+        Log.d("Your Activity", "Bytes Transferred: " + downloadObserver.getBytesTransferred());
         Log.d("Your Activity", "Bytes Total: " + downloadObserver.getBytesTotal());
     }
 
