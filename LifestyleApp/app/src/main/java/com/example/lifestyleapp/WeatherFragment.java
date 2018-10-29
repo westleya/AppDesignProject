@@ -44,11 +44,15 @@ public class WeatherFragment extends Fragment  {
         ProfileViewModel mProfileViewModel = ViewModelProviders.of(getActivity()).get(ProfileViewModel.class);
 
         // Get user location information to use for weather report
-        String city = mProfileViewModel.getProfile().getValue().getCity().replace(' ', '&');
-        String country = mProfileViewModel.getProfile().getValue().getCountry().replace(' ', '&');
+        String city = mProfileViewModel.getProfile().getValue().getCity();
+        String country = mProfileViewModel.getProfile().getValue().getCountry();
+        mTvLocation.setText(city + ", " + country);
+
+        city = city.replace(' ', '&');
+        country = country.replace(' ', '&');
+
         mWeatherViewModel.setLocation(city + '&' + country);
         mWeatherViewModel.getData().observe(this, weatherObserver);
-        mTvLocation.setText(city + ' ' + country);
         //LoadWeatherData(city + '&' + country);
 
         return view;

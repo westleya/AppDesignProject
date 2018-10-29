@@ -1,5 +1,6 @@
 package com.example.lifestyleapp;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -27,6 +28,7 @@ public class StepsFragment extends Fragment {
     private double curr_x, curr_z;
     private float start_steps, curr_steps;
     private boolean mNotFirstTime, mJustStartedCounting;
+    ProfileViewModel mProfileViewModel;
     public StepsFragment() {}
 
     @Nullable
@@ -40,6 +42,8 @@ public class StepsFragment extends Fragment {
 
         // Get the Sensor Manager
         mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        mProfileViewModel = ViewModelProviders.of(getActivity()).get(ProfileViewModel.class);
+        mTvSteps.setText("" + mProfileViewModel.getProfile().getValue().getSteps());
 
         // Get the default accelerometer
         mLinearAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
@@ -85,7 +89,6 @@ public class StepsFragment extends Fragment {
                 }
                 else {
                     curr_steps = sensorEvent.values[0] - start_steps;
-                    // TODO: save the recent step history to the room database
                 }
                 mTvSteps.setText("" + String.valueOf(curr_steps));
             }
@@ -114,6 +117,7 @@ public class StepsFragment extends Fragment {
         if(mLinearAccelerometer!=null || mStepCounter!=null) {
             mSensorManager.unregisterListener(mListener);
         }
+        mProfileViewModel.getProfile().getValue().setSteps(curr_steps);
     }
 
 }
