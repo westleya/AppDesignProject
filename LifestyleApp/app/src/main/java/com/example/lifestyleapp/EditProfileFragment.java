@@ -27,6 +27,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
@@ -61,6 +62,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     private ImageView m_ivProfilePic;
 
     // Profile data
+    private UserProfile mProfile;
     private String mName;
     private int mAge;
     private String mCountry;
@@ -70,7 +72,6 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     private int mWeight; // In pounds
     private int mSex; // 0 = female, 1 = male, 2 = none selected
     private Bitmap mProfilePic;
-
 
     ProfileViewModel mProfileViewModel;
 
@@ -120,10 +121,19 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         m_rbMale.setId(MALE);
         m_rbFemale.setId(FEMALE);
 
-        // FILL THE SPINNERS WITH DATA
-        setSpinners();
-
         mProfileViewModel = ViewModelProviders.of(getActivity()).get(ProfileViewModel.class);
+
+        // If user already exists, set their data accordingly
+        mProfile = mProfileViewModel.getProfile().getValue();
+
+        // FILL THE SPINNERS WITH DATA
+        fillSpinnersWithData();
+
+
+        if(mProfile != null){
+
+
+        }
 
         return view;
     }
@@ -144,7 +154,7 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
      * Helper method that sets all of the data into the following Spinners:
      * Age, Height, Weight, and Country.
      */
-    private void setSpinners() {
+    private void fillSpinnersWithData() {
 
         // Set age spinner
         ArrayList<Integer> ageValues = new ArrayList<>();
@@ -193,6 +203,51 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
         countryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         m_spCountry.setAdapter(countryAdapter);
         m_spCountry.setSelection(227); // Sets United States as default country
+
+        // If the user profile isn't null, then set their previous values
+        if(mProfile != null){
+            // Set the profile picture
+            mProfilePic = GeneralUtils.convertImage(mProfile.getImage());
+            m_ivProfilePic.setImageBitmap(mProfilePic);
+
+            // Set Name
+            m_etName.setText(mProfile.getName());
+
+            // Set Age (-12 because 12 is first possible value)
+            m_spAge.setSelection(mProfile.getAge() - 12);
+
+            // Set Country
+            int country = Arrays.binarySearch(countries, mProfile.getCountry());
+            m_spCity.setSelection(country);
+
+            // Set City
+            setCity(mProfile.getCountry());
+
+            // Set Height
+            m_spHeight.setSelection(mProfile.getHeight() - 48);
+
+            // Set Weight
+            m_spWeight.setSelection(mProfile.getWeight() - 50);
+
+            // Set Activity Level
+            if(mProfile.getActivityLevel().equals("Sedentary")){
+                m_spActivityLevel.setSelection(0);
+            }
+            else if(mProfile.getActivityLevel().equals("Moderate")){
+                m_spActivityLevel.setSelection(1);
+            }
+            else{
+                m_spActivityLevel.setSelection(2);
+            }
+
+            // Set Sex
+            if(mProfile.getSex()){
+                m_rbMale.setChecked(true);
+            }
+            else{
+                m_rbFemale.setChecked(true);
+            }
+        }
     }
 
     /**
@@ -333,7 +388,17 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         // Get the name of the selected country
         String country = (String) parent.getItemAtPosition(position);
+        setCity(country);
 
+
+    }
+
+    /**
+     * Sets the city list based on the selected country
+     *
+     * @param country
+     */
+    private void setCity(String country) {
         // Set City spinner Based on the selected country
         final int countriesAndCities = R.raw.countries_cities; // ID for json file with cities
         try {
@@ -360,6 +425,12 @@ public class EditProfileFragment extends Fragment implements View.OnClickListene
             ArrayAdapter<String> cityAdapter = new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_spinner_item, citiesAsArray);
             cityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             m_spCity.setAdapter(cityAdapter);
+
+            // Set the correct city if the user already exists
+            if(mProfile != null){
+                int cityIndex = Arrays.binarySearch(citiesAsArray, mProfile.getCity());
+                m_spCity.setSelection(cityIndex);
+            }
 
         } catch (IOException e) { // Reading the file failed
             e.printStackTrace();
