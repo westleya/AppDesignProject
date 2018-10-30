@@ -15,6 +15,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
             android:text="Target Weight: "
+            android:textStyle="bold"
             android:textSize="18dp"/>
 
         <Spinner
@@ -33,6 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
             android:text="Target Date: "
+            android:textStyle="bold"
             android:textSize="18dp"/>
 
         <Spinner

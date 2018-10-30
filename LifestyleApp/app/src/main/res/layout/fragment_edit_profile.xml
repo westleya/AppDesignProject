@@ -46,11 +46,13 @@
             android:textStyle="bold"
             android:layout_marginRight="8dp"
             android:textSize="18dp" />
+
         <EditText
+            android:id="@+id/et_name"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:id="@+id/et_name"/>
+            android:background="@null"
+            android:layout_weight="1" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -183,7 +185,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/ll_sex"
         android:layout_below="@id/ll_weight"
-        android:layout_marginBottom="8dp">
+        android:layout_marginBottom="32dp">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -196,7 +198,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:id="@+id/rg_sex">
+            android:id="@+id/rg_sex"
+            android:layout_weight="1">
             <RadioButton android:id="@+id/radio_male"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -209,20 +212,16 @@
                 />
         </RadioGroup>
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
+
+    <Button
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/ll_sex"
-        android:id="@+id/ll_photo">
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/ll_sex"
-            android:text="Submit Profile"
-            android:layout_marginRight="8dp"
-            android:id="@+id/button_profile_edit_submit"
-            />
-    </LinearLayout>
+        android:layout_gravity="center"
+        android:text="Submit Profile"
+        android:layout_marginRight="8dp"
+        android:id="@+id/button_profile_edit_submit"
+        />
 
 
 </LinearLayout>

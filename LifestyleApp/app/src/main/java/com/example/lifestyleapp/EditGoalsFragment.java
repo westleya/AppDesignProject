@@ -195,12 +195,6 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
         ArrayAdapter<String> dayAdapter = new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_spinner_item, day);
         dayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mTargetDay.setAdapter(dayAdapter);
-//        mSpGoals.setSelection(getIndex(mSpGoals, getArguments().getString("goals")));
-//        mSpActivity.setSelection(getIndex(mSpActivity, getArguments().getString("goals")));
-//        mSpTargetWeight.setSelection(getIndex(mSpTargetWeight, getArguments().getString("goals")));
-//        mSpTargetYear.setSelection(getIndex(mSpTargetYear, getArguments().getString("goals")));
-//        mSpTargetMonth.setSelection(getIndex(mSpTargetMonth, getArguments().getString("goals")));
-//        mTargetDay.setSelection(getIndex(mTargetDay, getArguments().getString("goals")));
 
         return view;
     }
@@ -208,16 +202,12 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
     @Override
     public void onSaveInstanceState(Bundle outState){
         // Get all string and int values associated with this fragment
-//        String goal = mSpGoals.getSelectedItem().toString();
-//        String activity = mSpActivity.getSelectedItem().toString();
         int weight = Integer.parseInt(mSpTargetWeight.getSelectedItem().toString());
         int year = Integer.parseInt(mSpTargetYear.getSelectedItem().toString());
         int month = Integer.parseInt(mSpTargetMonth.getSelectedItem().toString());
         int day = Integer.parseInt(mTargetDay.getSelectedItem().toString());
 
         // Store all string and int values
-//        outState.putString("GOAL", goal);
-//        outState.putString("ACTIVITY", activity);
         outState.putInt("WEIGHT", weight);
         outState.putInt("YEAR", year);
         outState.putInt("MONTH", month);
@@ -232,8 +222,6 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
 
         if(savedInstanceState != null){
             // Restore simple saved data
-//            mSpGoals.setSelection(savedInstanceState.getInt("GOAL"));
-//            mSpActivity.setSelection(savedInstanceState.getInt("ACTIVITY"));
             mSpTargetWeight.setSelection(savedInstanceState.getInt("WEIGHT"));
             mSpTargetYear.setSelection(savedInstanceState.getInt("YEAR"));
             mSpTargetMonth.setSelection((savedInstanceState.getInt("MONTH")));
