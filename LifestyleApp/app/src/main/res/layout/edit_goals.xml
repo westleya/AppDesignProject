@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="16dp"
+    android:layout_margin="8dp"
     android:orientation="vertical">
 
     <TextView
@@ -48,18 +48,18 @@
             android:text="By: "
             android:textStyle="bold"
             android:layout_weight="1"
+            android:layout_marginRight="8dp"
             android:textSize="18dp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="(Y)"
+            android:text="Y"
             android:textStyle="bold"
-            android:layout_marginRight="8dp"
             android:textSize="18dp"/>
         <Spinner
             android:id="@+id/spinner_targetYear"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1.5"></Spinner>
 
@@ -67,25 +67,24 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="(M)"
-            android:layout_marginRight="8dp"
+            android:text="M"
             android:textStyle="bold"
             android:textSize="18dp"/>
         <Spinner
             android:id="@+id/spinner_targetMonth"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"></Spinner>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="(D)"
+            android:text="D"
             android:textStyle="bold"
             android:textSize="18dp"/>
         <Spinner
             android:id="@+id/spinner_targetDay"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"></Spinner>
 

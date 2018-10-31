@@ -289,10 +289,10 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
                     MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
 
         } else { // We have permission. Find nearby hikes.
+
             Uri queryUri;
             // Update the longitude and latitude variables with the device's coordinates
-            mLocMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListener);
-
+            mLocMgr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000, 10, locationListener);
             // Construct the search for hikes from the device's coordinates
             queryUri = Uri.parse("geo:" + longitude + "," + latitude + "?q=" + mSearchFor);
 
@@ -310,6 +310,7 @@ public class MainActivity extends AppCompatActivity implements RCViewAdapter.Dat
         public void onLocationChanged(Location location) {
             longitude = location.getLongitude();
             latitude = location.getLatitude();
+
         }
 
         @Override

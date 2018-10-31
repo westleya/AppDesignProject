@@ -6,8 +6,8 @@
     android:orientation="vertical">
 
     <ImageView
-        android:layout_width="180dp"
-        android:layout_height="180dp"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
         android:scaleType="centerCrop"
         android:src="@mipmap/ic_launcher_round"
         android:layout_gravity="center"
