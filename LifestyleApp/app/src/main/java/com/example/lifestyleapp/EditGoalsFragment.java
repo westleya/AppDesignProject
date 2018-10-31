@@ -92,28 +92,26 @@ public class EditGoalsFragment extends Fragment implements View.OnClickListener,
                         return;
                     }
 
-//                    int currentCal = getArguments().getInt("CAL");
-                    int currentCal = 2000;
-//                    int currentWeight = getArguments().getInt("WEIGHT");
+                    int currentCal = FitnessUtils.calculateExpectedCaloricIntake(userProfile);
 
                     // Calculate the number of weeks between now and goal
                     long days = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
                     double weeks = days / 7.0;
                     poundsPerWeek = -1 * poundsToLose / weeks;
 
-                    if (Math.abs((double) (mCurrentWeight - goalWeight) / diff * 7) > 2) {
-                        Toast.makeText(this.getContext(), "Warning, you are planning to lose / gain more than 2 lbs per week, please select a different target", Toast.LENGTH_SHORT).show();
+                    if (Math.abs(poundsPerWeek) > 2) {
+                        Toast.makeText(this.getContext(), "Warning, you are planning to lose / gain more than 2 lbs per week. Please select a different target.", Toast.LENGTH_LONG).show();
                         return;
                     }
                     if (mCurrentWeight > goalWeight) {
-                        double cal = currentCal - ((double) (mCurrentWeight - goalWeight) * 3500) / diff;
+                        double cal = currentCal - (( poundsToLose * 3500) / days);
 
-                        if (getArguments().getBoolean("MALE") && cal < 1200) {
-                            Toast.makeText(this.getContext(), "Warning, your plan will result in unsafe low calorie intake, please select a different target", Toast.LENGTH_SHORT).show();
+                        if (userProfile.getSex() && cal < 1200) {
+                            Toast.makeText(this.getContext(), "Warning, your plan will result in low caloric intake. Please select a different target.", Toast.LENGTH_LONG).show();
                             return;
                         }
-                        if (!getArguments().getBoolean("MALE") && cal < 1000) {
-                            Toast.makeText(this.getContext(), "Warning, your plan will result in unsafe low calorie intake, please select a different target", Toast.LENGTH_SHORT).show();
+                        if (!userProfile.getSex() && cal < 1000) {
+                            Toast.makeText(this.getContext(), "Warning, your plan will result in low caloric intake. Please select a different target.", Toast.LENGTH_LONG).show();
                             return;
                         }
                     }

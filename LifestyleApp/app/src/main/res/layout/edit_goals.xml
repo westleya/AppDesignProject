@@ -5,16 +5,25 @@
     android:layout_margin="16dp"
     android:orientation="vertical">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:layout_gravity="center"
+        android:text="Set Your Fitness Goal"
+        android:textStyle="bold"
+        android:textSize="18dp"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp">
+        android:layout_marginBottom="16dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
-            android:text="Target Weight: "
+            android:text="Target Weight (LBS): "
             android:textStyle="bold"
             android:textSize="18dp"/>
 
@@ -23,7 +32,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"></Spinner>
+
     </LinearLayout>
+
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -32,27 +45,52 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="8dp"
-            android:text="Target Date: "
+            android:text="By: "
             android:textStyle="bold"
+            android:layout_weight="1"
             android:textSize="18dp"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="(Y)"
+            android:textStyle="bold"
+            android:layout_marginRight="8dp"
+            android:textSize="18dp"/>
         <Spinner
             android:id="@+id/spinner_targetYear"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.5"></Spinner>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="(M)"
+            android:layout_marginRight="8dp"
+            android:textStyle="bold"
+            android:textSize="18dp"/>
         <Spinner
             android:id="@+id/spinner_targetMonth"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"></Spinner>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="(D)"
+            android:textStyle="bold"
+            android:textSize="18dp"/>
         <Spinner
             android:id="@+id/spinner_targetDay"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"></Spinner>
+
     </LinearLayout>
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
