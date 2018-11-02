@@ -15,19 +15,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class StepsFragment extends Fragment {
 
     private TextView mTvSteps;
-    private ImageView mInfo;
     private SensorManager mSensorManager;
     private Sensor mLinearAccelerometer, mStepCounter;
-    private final double mThreshold = 3.0;
+    private final double mThreshold = 55.0;
 
     private double last_x, last_z;
     private double curr_x, curr_z;
-    private float start_steps, curr_steps;
-    private boolean mNotFirstTime, mJustStartedCounting;
+    private float mCurrSteps=0, mPrevSteps=0;
+    private boolean mNotFirstTime = false, mCountingSteps = false, mStartCount=true;
     ProfileViewModel mProfileViewModel;
     public StepsFragment() {}
 
@@ -43,10 +43,11 @@ public class StepsFragment extends Fragment {
         // Get the Sensor Manager
         mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         mProfileViewModel = ViewModelProviders.of(getActivity()).get(ProfileViewModel.class);
-        mTvSteps.setText("" + mProfileViewModel.getProfile().getValue().getSteps());
+        mTvSteps.setText("" + (int) mProfileViewModel.getProfile().getValue().getSteps());
 
         // Get the default accelerometer
         mLinearAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        mStepCounter = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
 
         return view;
     }
@@ -67,13 +68,17 @@ public class StepsFragment extends Fragment {
 
                     // Check if the acceleration has changed on any of the horizontal axes
                     if(dx > mThreshold){
+                        mCountingSteps = true;
                         // Left - right. Start counting
-                        mStepCounter = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-                        mJustStartedCounting = true;
+                        Toast.makeText(getActivity(), "Step counter started", Toast.LENGTH_SHORT).show();
+
                     }
                     else if (dz > mThreshold) {
                         // Front - back. Stop counting
-                        mStepCounter = null;
+                        mCountingSteps = false;
+                        Toast.makeText(getActivity(), "Step counter stopped", Toast.LENGTH_SHORT).show();
+                        mCurrSteps = 0;
+                        mStartCount=true;
                     }
 
                 }
@@ -81,16 +86,15 @@ public class StepsFragment extends Fragment {
                 last_z = curr_z;
                 mNotFirstTime = true;
             }
-            else if(sensorEvent.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
-                if(mJustStartedCounting) {
-                    start_steps = sensorEvent.values[0];
-                    curr_steps = 0;
-                    mJustStartedCounting = false;
+            else if(sensorEvent.sensor.getType() == Sensor.TYPE_STEP_COUNTER && mCountingSteps) {
+                if(mStartCount) {
+                    mPrevSteps = sensorEvent.values[0];
+                    mStartCount = false;
                 }
                 else {
-                    curr_steps = sensorEvent.values[0] - start_steps;
+                    mCurrSteps = sensorEvent.values[0] - mPrevSteps;
                 }
-                mTvSteps.setText("" + String.valueOf(curr_steps));
+                mTvSteps.setText("" + String.valueOf((int) mCurrSteps));
             }
         }
 
@@ -112,12 +116,18 @@ public class StepsFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState){
+        //Save the view hierarchy
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         if(mLinearAccelerometer!=null || mStepCounter!=null) {
             mSensorManager.unregisterListener(mListener);
         }
-        mProfileViewModel.getProfile().getValue().setSteps(curr_steps);
+        mProfileViewModel.getProfile().getValue().setSteps(mCurrSteps);
     }
 
 }
