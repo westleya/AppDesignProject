@@ -2,10 +2,12 @@ package com.example.lifestyleapp;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -29,6 +31,7 @@ public class StepsFragment extends Fragment {
     private float mCurrSteps=0, mPrevSteps=0;
     private boolean mNotFirstTime = false, mCountingSteps = false, mStartCount=true;
     ProfileViewModel mProfileViewModel;
+    MediaPlayer mPlayer;
     public StepsFragment() {}
 
     @Nullable
@@ -43,11 +46,19 @@ public class StepsFragment extends Fragment {
         // Get the Sensor Manager
         mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         mProfileViewModel = ViewModelProviders.of(getActivity()).get(ProfileViewModel.class);
-        mTvSteps.setText("" + (int) mProfileViewModel.getProfile().getValue().getSteps());
+        mCurrSteps = mProfileViewModel.getProfile().getValue().getSteps();
+        mTvSteps.setText("" + (int) mCurrSteps);
 
+        if((int) mCurrSteps > 0) {
+            mStartCount = false;
+            mCountingSteps = true;
+            mPrevSteps = (int) mProfileViewModel.getProfile().getValue().getStartSteps();
+            mTvSteps.setTextColor(Color.GREEN);
+        }
         // Get the default accelerometer
         mLinearAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         mStepCounter = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        mPlayer = MediaPlayer.create(this.getContext(), R.raw.sound);
 
         return view;
     }
@@ -71,14 +82,18 @@ public class StepsFragment extends Fragment {
                         mCountingSteps = true;
                         // Left - right. Start counting
                         Toast.makeText(getActivity(), "Step counter started", Toast.LENGTH_SHORT).show();
-
+                        mTvSteps.setTextColor(Color.GREEN);
+                        mPlayer.start();
                     }
                     else if (dz > mThreshold) {
                         // Front - back. Stop counting
                         mCountingSteps = false;
                         Toast.makeText(getActivity(), "Step counter stopped", Toast.LENGTH_SHORT).show();
                         mCurrSteps = 0;
+                        mPrevSteps=0;
                         mStartCount=true;
+                        mTvSteps.setTextColor(Color.GRAY);
+
                     }
 
                 }
@@ -92,7 +107,8 @@ public class StepsFragment extends Fragment {
                     mStartCount = false;
                 }
                 else {
-                    mCurrSteps = sensorEvent.values[0] - mPrevSteps;
+                    mCurrSteps += sensorEvent.values[0] - mPrevSteps;
+                    mPrevSteps = sensorEvent.values[0];
                 }
                 mTvSteps.setText("" + String.valueOf((int) mCurrSteps));
             }
@@ -128,6 +144,7 @@ public class StepsFragment extends Fragment {
             mSensorManager.unregisterListener(mListener);
         }
         mProfileViewModel.getProfile().getValue().setSteps(mCurrSteps);
+        mProfileViewModel.getProfile().getValue().setStartSteps(mPrevSteps);
     }
 
 }

@@ -57,7 +57,10 @@ public class UserProfile implements Serializable{
     private double poundsPerWeek; // In lbs per week
     @NonNull
     @ColumnInfo(name = "steps")
-    private float steps; // In lbs per week
+    private float steps; // an int
+    @NonNull
+    @ColumnInfo(name = "startSteps")
+    private float startSteps; // an int
 
     // Constructor for getting data from EditProfile
     public UserProfile(String name, int age, int weight, int height, String activityLevel, boolean sex, String country,
@@ -81,6 +84,7 @@ public class UserProfile implements Serializable{
         targetWeight = 0;
         poundsPerWeek = 0;
         steps = 0;
+        startSteps = 0;
 
     }
 
@@ -100,7 +104,7 @@ public class UserProfile implements Serializable{
     public String getGoal(){ return goal; }
     public byte[] getImage() { return image; }
     public float getSteps() {return steps;}
-
+    public float getStartSteps() { return startSteps; }
 
     // Setters
     public void setId(int id ) {this.id = id; }
@@ -116,5 +120,6 @@ public class UserProfile implements Serializable{
     public void setPoundsPerWeek(double poundsPerWeek) { this.poundsPerWeek = poundsPerWeek; }
     public void setActivityLevel(String activityLevel) { this.activityLevel = activityLevel; }
     public void setImage(byte[] image) {this.image = image; }
-    public void setSteps(@NonNull float steps) { this.steps = steps; }
+    public void setSteps( float steps) { this.steps = steps; }
+    public void setStartSteps( float startSteps) { this.startSteps = startSteps; }
 }
